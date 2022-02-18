@@ -1,0 +1,82 @@
+phone-menu:
+  title: "Your Phone"
+  contacts:
+    name: "Your Contacts"
+    lore:
+      - ""
+      - "Click to see your contacts"
+  background-color:
+    name: "Background color"
+    lore:
+      - ""
+      - "Current color: %color%"
+      - ""
+      - "Click to change!"
+  battery:
+    name: "Battery"
+    lore:
+      - ""
+      - "Your battery: %battery%%"
+  pin:
+    name: "PIN"
+    lore:
+      - ""
+      - "Your PIN: %pin%"
+      - ""
+      - "Click to change!"
+  owner:
+    name: "Phone Owner"
+    lore:
+      - ""
+      - "This phone belongs to %owner%"
+      - ""
+      - "Click to change!"
+change-pin-menu:
+  title: "Your Phone's PIN"
+  pin:
+    - ""
+    - "Left-Click to add 1"
+    - "Right-Click to remove 1"
+contacts-menu:
+  back-button: "&4Back"
+  contact:
+    title: "Your Contacts"
+    add: "Add a Contact"
+    contact-lore:
+      - ""
+      - "Left-Click to see profile"
+      - "Right-Click to add favorite"
+      - "Drop to remove contact"
+    favorite-name: "&6✪ %player% ✪"
+    favorite-lore:
+      - ""
+      - "Left-Click to see profile"
+      - "Right-Click to remove favorite"
+      - "Drop to remove contact"
+  players:
+    title: "Add a Contact"
+    player-lore:
+      - ""
+      - "Left-Click to add contact"
+      - "Right-Click to send a message"
+msgs-calls:
+  server-name: "ARandomServer"
+  notifications:
+    ingame:
+      notified: "%player% was notified!"
+      msg: "%player% sent you a phone message: %msg%"
+      call: "%player% is calling you on his phone! Join him on Discord!"
+      cant-notify:
+        offline: "This player isn't online."
+    discord:
+      msg: "%player% sent you a phone message on %server%: %msg%"
+      call: "%player% is calling you on his phone on %server%!"
+      cant-notify:
+        notification-disabled: "This player isn't online and has Discord notification disabled!"
+        mc-but-discord: "This player isn't online, but has been notified on Discord!"
+        mc-and-discord: "This player isn't online, and isn't linked to Discord. Ask them to do /discord link next time you see them!"
+discord:
+  not-linked: "You are not linked to Discord! Do /discord link"
+  receiver-not-linked: "This player isn't linked to Discord! Ask them to do /discord link next time you see them!"
+  no-calls-category: "No calls category were found! This is a misconfiguration error, contact an admin!"
+  is-in-call: "%player% is already in a call!"

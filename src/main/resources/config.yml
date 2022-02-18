@@ -1,0 +1,46 @@
+discord-integration:
+  enabled: true
+  # The category where call channels will be created and where players will be moved to by
+  # the bot after joining the waiting channel. Once everyone left, channels will be deleted.
+  calls-category: "<calls category>"
+
+phone:
+  craft:
+    enabled: true
+    # Craft of the phone, use PHONE_LOOK in items to use the look of the phone
+    grid:
+      - " L "
+      - "ODC"
+    items:
+      'L': LIGHTNING_ROD
+      'O': OBSERVER
+      'D': PHONE_LOOK
+      'C': COMPARATOR
+  # Should phones be able to hold keycards & activate scanners ?
+  keycard-integration: true
+
+sim:
+  enabled: true
+  craft:
+    enabled: true
+    grid:
+      - "ICI"
+    items:
+      'I': IRON_INGOT
+      'C': CHEST
+
+battery:
+  enabled: true
+  charger-craft:
+    enabled: true
+    grid:
+      - " I "
+      - "IRI"
+      - "IBI"
+    items:
+      'I': IRON_INGOT
+      'R': REDSTONE
+      'B': REDSTONE_BLOCK
+
+connection:
+  enabled: true
