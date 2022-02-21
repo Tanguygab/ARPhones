@@ -12,7 +12,7 @@ import java.util.*;
 
 public class MenuUtils {
 
-    public static void setPinHead(ItemStack item, int num) {
+    public static void setPinHead(ItemStack item, char num) {
         SkullMeta meta = (SkullMeta) item.getItemMeta();
         SkinUtils.setTexture(meta,num);
         item.setItemMeta(meta);
