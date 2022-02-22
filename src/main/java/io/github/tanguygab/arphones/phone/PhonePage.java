@@ -12,8 +12,8 @@ public enum PhonePage {
 
     public static PhonePage pageFromStr(String str) {
         for (PhonePage page : values()) {
-            if (page.toString().equalsIgnoreCase(str)) continue;
-            return page;
+            if (page.toString().equalsIgnoreCase(str))
+                return page;
         }
         return null;
     }

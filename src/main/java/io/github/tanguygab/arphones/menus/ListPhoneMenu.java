@@ -19,12 +19,10 @@ import java.util.UUID;
 public class ListPhoneMenu extends PhoneMenu {
 
     private final boolean isContacts;
-    private final List<String> list;
 
     public ListPhoneMenu(Player p, Phone phone, boolean isContacts) {
         super(p, phone, Bukkit.getServer().createInventory(null,54,Utils.msgs().getListTitle(isContacts)));
         this.isContacts = isContacts;
-        list = isContacts ? MenuUtils.sort(phone.getContacts(), phone.getFavorites()) : MenuUtils.getPlayers(phone.getContacts(),p);
     }
 
     @Override
@@ -45,16 +43,18 @@ public class ListPhoneMenu extends PhoneMenu {
     }
 
     private void loadPlayers() {
+        List<String> list = isContacts ? MenuUtils.sort(phone.getContacts(), phone.getFavorites()) : MenuUtils.getPlayers(phone.getContacts(), p);
+
         List<Integer> slots = List.of(10,11,12,13,14,15,16,19,20,21,22,23,24,25,28,29,30,31,32,33,34,37,38,39,40,41,42,43);
         for (int i = 0; i < slots.size(); i++) {
             int slot = slots.get(i);
-
-            if (list.size() < i+1) return;
+            inv.setItem(slot,null);
+            if (list.size() < i+1) continue;
             String uuid = list.get(i);
             OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(UUID.fromString(uuid));
             ItemStack head = phone.getFavorites().contains(uuid)
                     ? MenuUtils.createMenuItem(Material.PLAYER_HEAD,lang.getListFavoriteName(player.getName()),lang.getListFavoriteLore())
-                    : MenuUtils.createMenuItem(Material.PLAYER_HEAD,player.getName(),isContacts ? lang.getListPlayerLore() : lang.getListContactLore());
+                    : MenuUtils.createMenuItem(Material.PLAYER_HEAD,player.getName(),isContacts ? lang.getListContactLore() : lang.getListPlayerLore());
             SkullMeta meta = (SkullMeta) head.getItemMeta();
             if (player.getPlayerProfile().isComplete()) meta.setOwningPlayer(player);
             else player.getPlayerProfile().update().thenRunAsync(()->{
@@ -67,7 +67,6 @@ public class ListPhoneMenu extends PhoneMenu {
             inv.setItem(slot,head);
         }
     }
-
 
     private void onContactsClick(ItemStack item, int slot, ClickType click) {
         if (slot == 48) {

@@ -29,7 +29,8 @@ public class Phone {
         this.battery = battery;
         this.owner = owner;
         this.backgroundColor = backgroundColor;
-        this.page = page == null ? PhonePage.MAIN : page;
+        if (page == null) setPage(PhonePage.MAIN);
+        else this.page = page;
     }
     public Phone(Player p) {
         this(UUID.randomUUID(), "0000",new ArrayList<>(),new ArrayList<>(),100,p.getUniqueId().toString(),"gray", PhonePage.MAIN);
