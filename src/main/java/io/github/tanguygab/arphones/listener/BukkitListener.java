@@ -1,7 +1,7 @@
 package io.github.tanguygab.arphones.listener;
 
 import io.github.tanguygab.arphones.ARPhones;
-import io.github.tanguygab.arphones.config.LanguageFile;
+import io.github.tanguygab.arphones.menus.PhoneMenu;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Bukkit;
@@ -10,15 +10,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
 
 public class BukkitListener implements Listener {
 
@@ -29,55 +27,23 @@ public class BukkitListener implements Listener {
         e.setCancelled(true);
         Phone phone = Utils.getPhone(item);
         if (phone != null) {
-            phone.openMenu(e.getPlayer());
+            phone.openLastMenu(e.getPlayer());
             return;
         }
         Utils.addPhone(new Phone(e.getPlayer()),item);
     }
 
-    private final Pattern contactInfoPattern = Pattern.compile(Utils.msgs().getContactInfoTitle("(?<player>[a-zA-Z0-9*_.]+)"));
-
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
-        String title = e.getView().getTitle();
-        LanguageFile lang = Utils.msgs();
-        Player p = (Player) e.getWhoClicked();
-        String contact = null;
-        String menu = lang.getMenuTitle().equals(title) ? "menu"
-                : lang.getChangePinMenuTitle().equals(title) ? "pin"
-                : lang.getListTitle(true).equals(title) ? "contacts"
-                : lang.getListTitle(false).equals(title) ? "players"
-                : null;
-        if (menu == null) {
-            Matcher matcher = contactInfoPattern.matcher(title);
-            if (!matcher.find()) return;
-            contact = matcher.group("player");
-            menu = "contact";
-        }
-        Phone phone = Utils.getPhone(p.getInventory().getItemInMainHand());
-        if (phone == null) return;
-        e.setCancelled(true);
-        ItemStack item = e.getCurrentItem();
-        int slot = e.getRawSlot();
-        ClickType click = e.getClick();
-
-        switch (menu) {
-            case "menu" -> e.setCancelled(phone.onMenuClick(p,item,slot,click));
-            case "pin" -> phone.onPinMenuClick(item,slot,click);
-            case "contacts" -> phone.onContactsMenu(p,item,slot,click);
-            case "players" -> phone.onPlayersMenu(p,item,slot,click);
-            case "contact" -> phone.onContactInfoClick(p,contact,item,slot,click);
-        }
+        if (ARPhones.get().openedMenus.containsKey(e.getWhoClicked()))
+            e.setCancelled(ARPhones.get().openedMenus.get(e.getWhoClicked()).onClick(e.getCurrentItem(),e.getRawSlot(),e.getClick()));
     }
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent e) {
-        if (e.getView().getTitle().equals(Utils.msgs().getChangePinMenuTitle())) {
-            Player p = (Player) e.getPlayer();
-            p.sendMessage("Pin changed!");
-            Phone phone = Utils.getPhone(p.getInventory().getItemInMainHand());
-            if (phone != null) Bukkit.getServer().getScheduler().runTaskLater(ARPhones.get(),()->phone.openMenu(p),1);
-        }
+        Map<Player,PhoneMenu> menus = ARPhones.get().openedMenus;
+        Player p = (Player) e.getPlayer();
+        if (menus.containsKey(p)) menus.remove(e.getPlayer()).close();
     }
 
     @EventHandler(ignoreCancelled = true)

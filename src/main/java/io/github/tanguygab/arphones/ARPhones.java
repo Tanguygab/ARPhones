@@ -10,6 +10,7 @@ import io.github.tanguygab.arphones.config.LanguageFile;
 import io.github.tanguygab.arphones.config.YamlConfigurationFile;
 import io.github.tanguygab.arphones.listener.BukkitListener;
 import io.github.tanguygab.arphones.listener.DiscordListener;
+import io.github.tanguygab.arphones.menus.PhoneMenu;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.phone.PhoneLook;
 import io.github.tanguygab.arphones.phone.PhonePage;
@@ -45,6 +46,7 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
     private DiscordListener discordListener;
 
     public Map<Player, Phone> changingOwners = new HashMap<>();
+    public Map<Player, PhoneMenu> openedMenus = new HashMap<>();
 
     public static ARPhones get() {
         return instance;
@@ -88,7 +90,9 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
                 Utils.removeInvalidPlayers(contactsStr);
                 Utils.removeInvalidPlayers(favoritesStr);
 
-                Utils.addPhone(new Phone(uuid,pin,contactsStr,favoritesStr,battery,owner,backgroundColor,PhonePage.pageFromStr(page)),null);
+                Phone ph = new Phone(uuid,pin,contactsStr,favoritesStr,battery,owner,backgroundColor,PhonePage.pageFromStr(page));
+                Utils.addPhone(ph,null);
+                ph.setContactPage(map.get("page-contact")+"");
             }
 
         } catch (Exception e) {
