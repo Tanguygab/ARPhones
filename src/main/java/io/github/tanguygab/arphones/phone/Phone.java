@@ -1,6 +1,7 @@
 package io.github.tanguygab.arphones.phone;
 
 import io.github.tanguygab.arphones.ARPhones;
+import io.github.tanguygab.arphones.SIMCard;
 import io.github.tanguygab.arphones.menus.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -13,27 +14,25 @@ public class Phone {
     private final UUID uuid;
     private String pin;
     private String owner;
-    private final List<String> contacts;
-    private final List<String> favorites;
+    private SIMCard sim;
 
     private String backgroundColor;
     private int battery;
     private PhonePage page;
     private String contactPage = null;
 
-    public Phone(UUID uuid, String pin, List<String> contacts, List<String> favorites, int battery, String owner, String backgroundColor, PhonePage page) {
+    public Phone(UUID uuid, String pin, SIMCard sim, int battery, String owner, String backgroundColor, PhonePage page) {
         this.uuid = uuid;
         this.pin = pin;
-        this.contacts = contacts;
-        this.favorites = favorites;
+        this.sim = sim;
         this.battery = battery;
         this.owner = owner;
         this.backgroundColor = backgroundColor;
         if (page == null) setPage(PhonePage.MAIN);
         else this.page = page;
     }
-    public Phone(Player p) {
-        this(UUID.randomUUID(), "0000",new ArrayList<>(),new ArrayList<>(),100,p.getUniqueId().toString(),"gray", PhonePage.MAIN);
+    public Phone(UUID uuid, Player p) {
+        this(uuid, "0000",null,100,p.getUniqueId().toString(),"gray", PhonePage.MAIN);
         openPinMenu(p);
     }
 
@@ -50,6 +49,14 @@ public class Phone {
     public void setOwner(String owner) {
         this.owner = owner;
         set("owner",owner);
+    }
+
+    public SIMCard getSim() {
+        return sim;
+    }
+    public void setSim(SIMCard sim) {
+        this.sim = sim;
+        set("sim",sim == null ? null : sim.getUUID().toString());
     }
 
     public String getBackgroundColor() {
@@ -98,37 +105,6 @@ public class Phone {
         set("battery",battery);
     }
 
-    public List<String> getContacts() {
-        return contacts;
-    }
-    public void addContact(String uuid) {
-        if (contacts.contains(uuid)) return;
-        contacts.add(uuid);
-        set("contacts",contacts);
-    }
-    public void removeContact(String uuid) {
-        removeFavorite(uuid);
-        contacts.remove(uuid);
-        if (contacts.isEmpty()) set("contacts",null);
-        else set("contacts",contacts);
-    }
-
-    public List<String> getFavorites() {
-        return favorites;
-    }
-    public void addFavorite(String uuid) {
-        if (favorites.contains(uuid)) return;
-        favorites.add(uuid);
-        set("favorites",favorites);
-    }
-    public void removeFavorite(String uuid) {
-        favorites.remove(uuid);
-        set("favorites",favorites);
-        if (favorites.isEmpty()) set("favorites",null);
-        else set("favorites",favorites);
-    }
-
-
     public void openMenu(Player p, PhoneMenu menu, PhonePage page) {
         p.closeInventory();
 
@@ -146,6 +122,10 @@ public class Phone {
     }
 
     public void openListMenu(Player p, boolean isContacts) {
+        if (sim == null) {
+            p.sendMessage("You need a SIM card for this!");
+            return;
+        }
         openMenu(p,new ListPhoneMenu(p,this,isContacts),isContacts ? PhonePage.CONTACTS : PhonePage.PLAYERS);
     }
 

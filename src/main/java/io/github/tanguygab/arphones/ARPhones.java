@@ -40,10 +40,12 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
     public ConfigurationFile configFile;
     public ConfigurationFile dataFile;
     public ConfigurationFile historyFile;
-    public Map<String, Phone> phones = new HashMap<>();
     public LanguageFile languageFile;
     public boolean discord;
     private DiscordListener discordListener;
+
+    public Map<String, Phone> phones = new HashMap<>();
+    public Map<String, SIMCard> sims = new HashMap<>();
 
     public Map<Player, Phone> changingOwners = new HashMap<>();
     public Map<Player, PhoneMenu> openedMenus = new HashMap<>();
@@ -74,25 +76,40 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
                 discord = true;
             } else discord = false;
 
-            Map<String,Map<String,Object>> phonesMap = dataFile.getConfigurationSection("phones");
-            for (String phone : phonesMap.keySet()) {
-                Map<String,Object> map = phonesMap.get(phone);
-                UUID uuid = UUID.fromString(phone);
-                String pin = map.get("pin")+"";
+            Map<String,Map<String,Object>> simsMap = dataFile.getConfigurationSection("sims");
+            System.out.println(simsMap);
+            for (String el : simsMap.keySet()) {
+                Map<String,Object> map = simsMap.get(el);
+                UUID uuid = UUID.fromString(el);
+
+                System.out.println(el);
 
                 List<String> contactsStr = map.containsKey("contacts") ? (List<String>) map.get("contacts") : new ArrayList<>();
                 List<String> favoritesStr = map.containsKey("favorites") ? (List<String>) map.get("favorites") : new ArrayList<>();
+
+                Utils.removeInvalidPlayers(contactsStr);
+                Utils.removeInvalidPlayers(favoritesStr);
+
+                SIMCard sim = new SIMCard(uuid,contactsStr,favoritesStr);
+                ARPhones.get().sims.put(el,sim);
+            }
+
+            Map<String,Map<String,Object>> phonesMap = dataFile.getConfigurationSection("phones");
+            for (String el : phonesMap.keySet()) {
+                Map<String,Object> map = phonesMap.get(el);
+                UUID uuid = UUID.fromString(el);
+                String pin = map.get("pin")+"";
+                String sim = map.get("sim")+"";
+
+
                 int battery = (int) map.get("battery");
                 String owner = map.get("owner")+"";
                 String backgroundColor = map.get("background-color")+"";
                 String page = map.get("page")+"";
 
-                Utils.removeInvalidPlayers(contactsStr);
-                Utils.removeInvalidPlayers(favoritesStr);
-
-                Phone ph = new Phone(uuid,pin,contactsStr,favoritesStr,battery,owner,backgroundColor,PhonePage.pageFromStr(page));
-                Utils.addPhone(ph,null);
-                ph.setContactPage(map.get("page-contact")+"");
+                Phone phone = new Phone(uuid,pin,sims.get(sim),battery,owner,backgroundColor,PhonePage.pageFromStr(page));
+                ARPhones.get().phones.put(el,phone);
+                phone.setContactPage(map.get("page-contact")+"");
             }
 
         } catch (Exception e) {
@@ -118,7 +135,7 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
 
     public void loadRecipes() {
         for (PhoneLook look : PhoneLook.values()) addRecipe("phone-"+look.toString().toLowerCase(),"phone.craft",Utils.getPhone(look),look.getMaterial());
-        addRecipe("sim","sim.craft",Utils.getPhone(PhoneLook.ORIGINAL),null);
+        addRecipe("sim","sim.craft",Utils.getSIM(null,false),null);
         addRecipe("charger","battery.charger-craft",Utils.getPhone(PhoneLook.ORIGINAL),null);
     }
     public void addRecipe(String name, String config, ItemStack result, Material phoneLook) {
@@ -213,31 +230,34 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
                     sender.sendMessage("You have to provide an item!");
                     return true;
                 }
+                Player p;
+                if (args.length > 2) {
+                    String player = args[2];
+                    p = getServer().getPlayer(player);
+                    if (p == null) {
+                        sender.sendMessage("This player isn't online!");
+                        return true;
+                    }
+                } else {
+                    if (!(sender instanceof Player s)){
+                        sender.sendMessage("You have to be a player to do that!");
+                        return true;
+                    }
+                    p = s;
+                }
                 ItemStack item;
                 switch (args[1].toLowerCase()) {
                     case "phone" -> {
                         String look = args.length > 3 ? args[3] : "ORIGINAL";
                         item = Utils.getPhone(PhoneLook.get(look));
                     }
+                    case "sim" -> item = Utils.getSIM(UUID.randomUUID(),true);
                     default -> {
                         sender.sendMessage("Invalid item type!");
                         return true;
                     }
                 }
-
-                if (args.length > 2) {
-                    String player = args[2];
-                    Player p = getServer().getPlayer(player);
-                    if (p == null) {
-                        sender.sendMessage("This player isn't online!");
-                        return true;
-                    }
-                    p.getInventory().addItem(item);
-                }
-                else {
-                    if (sender instanceof Player p) p.getInventory().addItem(item);
-                    else sender.sendMessage("You have to be a player to do that!");
-                }
+                p.getInventory().addItem(item);
 
             }
             default -> sender.sendMessage(Utils.colors(

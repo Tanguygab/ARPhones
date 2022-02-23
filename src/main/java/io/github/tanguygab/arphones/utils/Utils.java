@@ -1,12 +1,14 @@
 package io.github.tanguygab.arphones.utils;
 
 import io.github.tanguygab.arphones.ARPhones;
+import io.github.tanguygab.arphones.SIMCard;
 import io.github.tanguygab.arphones.config.LanguageFile;
 import io.github.tanguygab.arphones.phone.PhoneLook;
 import io.github.tanguygab.arphones.config.ConfigurationFile;
 import io.github.tanguygab.arphones.phone.Phone;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -18,55 +20,77 @@ import java.util.UUID;
 
 public class Utils {
 
-    public static NamespacedKey isPhoneKey = new NamespacedKey(ARPhones.get(),"isPhone");
     public static NamespacedKey phoneKey = new NamespacedKey(ARPhones.get(),"phone");
     public static NamespacedKey contactName = new NamespacedKey(ARPhones.get(),"contact-name");
+    public static NamespacedKey SIMKey = new NamespacedKey(ARPhones.get(),"sim");
 
     public static ItemStack getPhone(PhoneLook look) {
         ItemStack item = new ItemStack(look.getMaterial());
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(colors("&8[&6"+look.getName()+"&8]"));
         PersistentDataContainer data = meta.getPersistentDataContainer();
-        data.set(isPhoneKey, PersistentDataType.BYTE,(byte)1);
+        data.set(phoneKey, PersistentDataType.STRING,UUID.randomUUID().toString());
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         item.setItemMeta(meta);
         item.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL,1);
         return item;
     }
 
-    public static boolean isPhone(ItemStack phone) {
-        return phone != null && phone.getItemMeta() != null && phone.getItemMeta().getPersistentDataContainer().has(isPhoneKey,PersistentDataType.BYTE);
+    public static ItemStack getSIM(UUID uuid, boolean register) {
+        ItemStack item = new ItemStack(Material.BOOK);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(colors("&8[&6SIM Card&8]"));
+        if (register) {
+            uuid = UUID.randomUUID();
+            addSIM(new SIMCard(uuid));
+        }
+        if (uuid != null) {
+            PersistentDataContainer data = meta.getPersistentDataContainer();
+            data.set(SIMKey, PersistentDataType.STRING,uuid.toString());
+        }
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        item.setItemMeta(meta);
+        item.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL,1);
+        return item;
     }
 
-    public static Phone getPhone(ItemStack item) {
-        if (!isPhone(item)) return null;
+    public static Phone getPhone(ItemStack item, Player owner) {
+        if (item == null || item.getItemMeta() == null) return null;
 
         ItemMeta meta = item.getItemMeta();
         PersistentDataContainer data = meta.getPersistentDataContainer();
+        if (!data.has(phoneKey,PersistentDataType.STRING)) return null;
         String phoneUUID = data.get(phoneKey, PersistentDataType.STRING);
-        return ARPhones.get().phones.get(phoneUUID);
+        Phone phone = ARPhones.get().phones.get(phoneUUID);
+        if (phone == null) addPhone(new Phone(UUID.randomUUID(),owner));
+        return phone;
+    }
+    public static SIMCard getSIM(ItemStack item) {
+        if (item == null || item.getItemMeta() == null) return null;
+
+        ItemMeta meta = item.getItemMeta();
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        if (!data.has(SIMKey,PersistentDataType.STRING)) return null;
+        String simUUID = data.get(SIMKey, PersistentDataType.STRING);
+        SIMCard sim = ARPhones.get().sims.get(simUUID);
+        if (sim == null) addSIM(new SIMCard(UUID.randomUUID()));
+        return sim;
     }
 
-    public static void addPhone(Phone phone, ItemStack item) {
+    public static void addPhone(Phone phone) {
         ARPhones.get().phones.put(phone.getUUID().toString(),phone);
         ConfigurationFile config = ARPhones.get().dataFile;
         config.set("phones."+phone.getUUID()+".pin",phone.getPin());
-        config.set("phones."+phone.getUUID()+".contacts",phone.getContacts());
-        config.set("phones."+phone.getUUID()+".favorites",phone.getFavorites());
         config.set("phones."+phone.getUUID()+".battery",phone.getBattery());
         config.set("phones."+phone.getUUID()+".owner",phone.getOwner());
         config.set("phones."+phone.getUUID()+".background-color",phone.getBackgroundColor());
         config.set("phones."+phone.getUUID()+".page",phone.getPage().toString());
-        if (item != null) {
-            ItemMeta meta = item.getItemMeta();
-            PersistentDataContainer data = meta.getPersistentDataContainer();
-            data.set(phoneKey, PersistentDataType.STRING,phone.getUUID().toString());
-            item.setItemMeta(meta);
-        }
     }
-    public static void removePhone(Phone phone) {
-        ARPhones.get().phones.remove(phone.getUUID().toString());
-        ARPhones.get().dataFile.set("phones."+phone.getUUID(),null);
+    public static void addSIM(SIMCard sim) {
+        ARPhones.get().sims.put(sim.getUUID().toString(),sim);
+        ConfigurationFile config = ARPhones.get().dataFile;
+        config.set("sims."+sim.getUUID()+".contacts",sim.getContacts());
+        config.set("sims."+sim.getUUID()+".favorites",sim.getFavorites());
     }
 
     public static String colors(String s) {

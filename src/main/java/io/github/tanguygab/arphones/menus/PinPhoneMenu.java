@@ -74,7 +74,7 @@ public class PinPhoneMenu extends PhoneMenu {
     public void close() {
         super.close();
         p.sendMessage("Pin changed!");
-        Phone phone = Utils.getPhone(p.getInventory().getItemInMainHand());
+        Phone phone = Utils.getPhone(p.getInventory().getItemInMainHand(),p);
         if (phone != null) Bukkit.getServer().getScheduler().runTaskLater(ARPhones.get(),()->phone.openMainMenu(p),1);
     }
 }

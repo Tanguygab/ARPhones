@@ -1,6 +1,7 @@
 package io.github.tanguygab.arphones.menus;
 
 import io.github.tanguygab.arphones.ARPhones;
+import io.github.tanguygab.arphones.SIMCard;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.utils.MenuUtils;
 import io.github.tanguygab.arphones.utils.Utils;
@@ -10,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 public class MainPhoneMenu extends PhoneMenu {
@@ -26,11 +28,20 @@ public class MainPhoneMenu extends PhoneMenu {
         inv.setItem(16,MenuUtils.createMenuItem(Material.NAME_TAG,lang.getOwnerName(),lang.getOwnerLore(Bukkit.getServer().getOfflinePlayer(UUID.fromString(phone.getOwner())).getName())));
 
         inv.setItem(7,MenuUtils.createMenuItem(Material.REDSTONE,lang.getBatteryName(),lang.getBatteryLore(phone.getBattery())));
-        inv.setItem(8,MenuUtils.createMenuItem(Material.REDSTONE_TORCH,lang.getConnectionName(),lang.getConnectionLore(5)));
 
+        loadSIMItem();
         loadBackground();
 
         p.openInventory(inv);
+    }
+
+    private void loadSIMItem() {
+        ItemStack sim = phone.getSim() == null
+                ? MenuUtils.createMenuItem(Material.BARRIER,"No SIM card found",null)
+                : MenuUtils.createMenuItem(Material.BOOK,"SIM card", Arrays.asList("","Click to take out"));
+        inv.setItem(8,sim);
+
+        //inv.setItem(8,MenuUtils.createMenuItem(Material.REDSTONE_TORCH,lang.getConnectionName(),lang.getConnectionLore(5)));
     }
 
     private void loadBackground() {
@@ -46,11 +57,25 @@ public class MainPhoneMenu extends PhoneMenu {
 
     @Override
     public boolean onClick(ItemStack item, int slot, ClickType click) {
+        ItemStack cursor = p.getItemOnCursor();
         switch (slot) {
             case 7 -> {
-                if (p.getItemOnCursor().getType() != Material.REDSTONE || phone.getBattery() == 100) break;
+                if (cursor.getType() != Material.REDSTONE || phone.getBattery() == 100) break;
                 p.setItemOnCursor(null);
                 phone.setBattery(phone.getBattery()+5);
+            }
+            case 8 -> {
+                SIMCard sim = Utils.getSIM(cursor);
+                if (sim != null) {
+                    p.setItemOnCursor(phone.getSim() != null ? Utils.getSIM(phone.getSim().getUUID(),false) : null);
+                    phone.setSim(sim);
+                    loadSIMItem();
+                }
+                if (phone.getSim() != null && cursor.getType().isAir()) {
+                    p.setItemOnCursor(Utils.getSIM(phone.getSim().getUUID(),false));
+                    phone.setSim(null);
+                    loadSIMItem();
+                }
             }
             case 10 -> phone.openListMenu(p,true);
             case 12 -> {
@@ -68,7 +93,9 @@ public class MainPhoneMenu extends PhoneMenu {
                 ARPhones.get().changingOwners.put(p,phone);
             }
             default -> {
-                if ((item != null && item.getType() == Material.REDSTONE) || p.getItemOnCursor().getType() == Material.REDSTONE)
+                boolean isRedstone = (item != null && item.getType() == Material.REDSTONE) || cursor.getType() == Material.REDSTONE;
+                boolean isSIM = Utils.getSIM(item) != null || Utils.getSIM(cursor) != null;
+                if (isRedstone || isSIM)
                     return false;
             }
         }
