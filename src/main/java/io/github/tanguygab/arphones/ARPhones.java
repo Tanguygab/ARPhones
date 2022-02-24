@@ -10,6 +10,7 @@ import io.github.tanguygab.arphones.config.LanguageFile;
 import io.github.tanguygab.arphones.config.YamlConfigurationFile;
 import io.github.tanguygab.arphones.listener.BukkitListener;
 import io.github.tanguygab.arphones.listener.DiscordListener;
+import io.github.tanguygab.arphones.listener.KeyCardListener;
 import io.github.tanguygab.arphones.menus.PhoneMenu;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.phone.PhoneLook;
@@ -26,6 +27,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,8 +71,10 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
             historyFile = new YamlConfigurationFile(null, fileHistory);
 
             loadRecipes();
-            getServer().getPluginManager().registerEvents(new BukkitListener(),this);
-            if (getServer().getPluginManager().getPlugin("DiscordSRV") != null && configFile.getBoolean("discord-integration.enabled",true)) {
+            PluginManager pm = getServer().getPluginManager();
+            pm.registerEvents(new BukkitListener(),this);
+            if (pm.isPluginEnabled("KeyCard")) getServer().getPluginManager().registerEvents(new KeyCardListener(),this);
+            if (pm.getPlugin("DiscordSRV") != null && configFile.getBoolean("discord-integration.enabled",true)) {
                 DiscordSRV.api.subscribe(discordListener = new DiscordListener());
                 if (DiscordUtil.getJda() != null) discordInit();
                 discord = true;
@@ -81,8 +85,6 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
             for (String el : simsMap.keySet()) {
                 Map<String,Object> map = simsMap.get(el);
                 UUID uuid = UUID.fromString(el);
-
-                System.out.println(el);
 
                 List<String> contactsStr = map.containsKey("contacts") ? (List<String>) map.get("contacts") : new ArrayList<>();
                 List<String> favoritesStr = map.containsKey("favorites") ? (List<String>) map.get("favorites") : new ArrayList<>();
@@ -98,16 +100,21 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
             for (String el : phonesMap.keySet()) {
                 Map<String,Object> map = phonesMap.get(el);
                 UUID uuid = UUID.fromString(el);
-                String pin = map.get("pin")+"";
+                String pin = map.getOrDefault("pin","0000")+"";
                 String sim = map.get("sim")+"";
 
-
-                int battery = (int) map.get("battery");
+                int battery = (int) map.getOrDefault("battery",100);
                 String owner = map.get("owner")+"";
-                String backgroundColor = map.get("background-color")+"";
-                String page = map.get("page")+"";
+                String backgroundColor = map.getOrDefault("background-color","gray")+"";
+                String page = map.getOrDefault("page","MAIN")+"";
 
-                Phone phone = new Phone(uuid,pin,sims.get(sim),battery,owner,backgroundColor,PhonePage.pageFromStr(page));
+                List<ItemStack> keycards = new ArrayList<>();
+                if (map.containsKey("keycards")) {
+                    List<Map<String,Object>> list = (List<Map<String, Object>>) map.get("keycards");
+                    list.forEach(card->keycards.add(Utils.keyCardFromString(card)));
+                }
+
+                Phone phone = new Phone(uuid,pin,sims.get(sim),battery,owner,backgroundColor,PhonePage.pageFromStr(page),keycards);
                 ARPhones.get().phones.put(el,phone);
                 phone.setContactPage(map.get("page-contact")+"");
             }

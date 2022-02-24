@@ -23,7 +23,7 @@ public class ListPhoneMenu extends PhoneMenu {
     private final SIMCard sim;
 
     public ListPhoneMenu(Player p, Phone phone, boolean isContacts) {
-        super(p, phone, Bukkit.getServer().createInventory(null,54,Utils.msgs().getListTitle(isContacts)));
+        super(p, phone, Utils.msgs().getListTitle(isContacts),54);
         sim = phone.getSim();
         this.isContacts = isContacts;
     }

@@ -4,6 +4,6 @@ main: io.github.tanguygab.arphones.ARPhones
 api-version: 1.18
 authors: [Tanguygab]
 description: Adds phones to Minecraft!
-softdepend: [DiscordSRV]
+softdepend: [DiscordSRV,KeyCard]
 commands:
   arphones:

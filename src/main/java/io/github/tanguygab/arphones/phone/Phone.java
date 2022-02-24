@@ -3,10 +3,13 @@ package io.github.tanguygab.arphones.phone;
 import io.github.tanguygab.arphones.ARPhones;
 import io.github.tanguygab.arphones.SIMCard;
 import io.github.tanguygab.arphones.menus.*;
+import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
 import java.util.*;
 
 public class Phone {
@@ -21,7 +24,10 @@ public class Phone {
     private PhonePage page;
     private String contactPage = null;
 
-    public Phone(UUID uuid, String pin, SIMCard sim, int battery, String owner, String backgroundColor, PhonePage page) {
+    // keycard hook
+    private final List<ItemStack> keycards;
+
+    public Phone(UUID uuid, String pin, SIMCard sim, int battery, String owner, String backgroundColor, PhonePage page, List<ItemStack> keycards) {
         this.uuid = uuid;
         this.pin = pin;
         this.sim = sim;
@@ -30,9 +36,10 @@ public class Phone {
         this.backgroundColor = backgroundColor;
         if (page == null) setPage(PhonePage.MAIN);
         else this.page = page;
+        this.keycards = keycards;
     }
     public Phone(UUID uuid, Player p) {
-        this(uuid, "0000",null,100,p.getUniqueId().toString(),"gray", PhonePage.MAIN);
+        this(uuid, "0000",null,100,p.getUniqueId().toString(),"gray", PhonePage.MAIN,new ArrayList<>());
         openPinMenu(p);
     }
 
@@ -145,9 +152,31 @@ public class Phone {
             case CONTACTS -> openListMenu(p,true);
             case PLAYERS -> openListMenu(p,false);
             case CONTACT_INFO -> openContactInfoMenu(p,Bukkit.getServer().getOfflinePlayer(UUID.fromString(contactPage)));
+            case KEYCARDS -> openKeyCards(p);
         }
     }
 
+    public void openKeyCards(Player p) {
+        if (!Bukkit.getServer().getPluginManager().isPluginEnabled("KeyCard")) {
+            p.sendMessage("The KeyCard plugin isn't loaded!");
+            return;
+        }
+        openMenu(p,new KeyCardMenu(p,this),PhonePage.KEYCARDS);
+    }
 
-
+    public List<ItemStack> getKeycards() {
+        return keycards;
+    }
+    public void addKeyCard(ItemStack card) {
+        keycards.add(card);
+        List<Object> list = (List<Object>) ARPhones.get().dataFile.getObject("phones."+uuid+".keycards", new ArrayList<>());
+        list.add(Utils.keyCardToString(card));
+        set("keycards",list);
+    }
+    public void removeKeyCard(ItemStack card) {
+        keycards.remove(card);
+        List<Object> list = (List<Object>) ARPhones.get().dataFile.getObject("phones."+uuid+".keycards",new ArrayList<>());
+        list.remove(Utils.keyCardToString(card));
+        set("keycards",list);
+    }
 }

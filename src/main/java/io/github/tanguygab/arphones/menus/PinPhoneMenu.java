@@ -16,7 +16,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class PinPhoneMenu extends PhoneMenu {
 
     public PinPhoneMenu(Player p, Phone phone) {
-        super(p, phone,Bukkit.getServer().createInventory(null, InventoryType.HOPPER,Utils.msgs().getChangePinMenuTitle()));
+        super(p, phone, Utils.msgs().getChangePinMenuTitle(), InventoryType.HOPPER);
     }
 
     @Override

@@ -4,7 +4,6 @@ import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.utils.MenuUtils;
 import io.github.tanguygab.arphones.utils.PhoneUtils;
 import io.github.tanguygab.arphones.utils.Utils;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -21,7 +20,7 @@ public class ContactInfoMenu extends PhoneMenu {
     private final OfflinePlayer contact;
 
     public ContactInfoMenu(Player p, Phone phone, OfflinePlayer contact) {
-        super(p, phone, Bukkit.getServer().createInventory(null, 54,Utils.msgs().getContactInfoTitle(contact.getName())));
+        super(p, phone, Utils.msgs().getContactInfoTitle(contact.getName()), 54);
         this.contact = contact;
     }
 

@@ -8,7 +8,9 @@ import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -30,7 +32,9 @@ public class BukkitListener implements Listener {
     @EventHandler
     public void onPhoneClick(PlayerInteractEvent e) {
         ItemStack item = e.getItem();
-        if (e.getAction() != Action.RIGHT_CLICK_BLOCK && e.getAction() != Action.RIGHT_CLICK_AIR) return;
+        boolean useBlock = e.getAction() == Action.RIGHT_CLICK_BLOCK && e.useInteractedBlock() != Event.Result.DENY;
+        boolean useItem = e.getAction() == Action.RIGHT_CLICK_AIR && e.useItemInHand() != Event.Result.DENY;
+        if (!useBlock && !useItem) return;
         Phone phone = Utils.getPhone(item,e.getPlayer());
         if (phone == null) return;
         e.setCancelled(true);

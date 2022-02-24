@@ -15,7 +15,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class Utils {
@@ -62,7 +64,11 @@ public class Utils {
         if (!data.has(phoneKey,PersistentDataType.STRING)) return null;
         String phoneUUID = data.get(phoneKey, PersistentDataType.STRING);
         Phone phone = ARPhones.get().phones.get(phoneUUID);
-        if (phone == null) addPhone(new Phone(UUID.randomUUID(),owner));
+        if (phone == null && owner != null) {
+            phone = new Phone(UUID.randomUUID(),owner);
+            ARPhones.get().phones.put(phone.getUUID().toString(),phone);
+            ARPhones.get().dataFile.set("phones."+phone.getUUID()+".owner",phone.getOwner());
+        }
         return phone;
     }
     public static SIMCard getSIM(ItemStack item) {
@@ -77,15 +83,6 @@ public class Utils {
         return sim;
     }
 
-    public static void addPhone(Phone phone) {
-        ARPhones.get().phones.put(phone.getUUID().toString(),phone);
-        ConfigurationFile config = ARPhones.get().dataFile;
-        config.set("phones."+phone.getUUID()+".pin",phone.getPin());
-        config.set("phones."+phone.getUUID()+".battery",phone.getBattery());
-        config.set("phones."+phone.getUUID()+".owner",phone.getOwner());
-        config.set("phones."+phone.getUUID()+".background-color",phone.getBackgroundColor());
-        config.set("phones."+phone.getUUID()+".page",phone.getPage().toString());
-    }
     public static void addSIM(SIMCard sim) {
         ARPhones.get().sims.put(sim.getUUID().toString(),sim);
         ConfigurationFile config = ARPhones.get().dataFile;
@@ -113,5 +110,32 @@ public class Utils {
             if (player.equals(p.getName())) return p;
         }
         return null;
+    }
+
+    public static Map<String,Object> keyCardToString(ItemStack item) {
+        Map<String,Object> map = new HashMap<>();
+        map.put("type",item.getType().toString());
+        map.put("amount",item.getAmount());
+        ItemMeta meta = item.getItemMeta();
+        if (meta.hasDisplayName()) map.put("name",meta.getDisplayName());
+        if (meta.hasLore()) map.put("lore",meta.getLore());
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        Map<String,String> dataMap = new HashMap<>();
+        dataMap.put("keycard-type",data.get(io.github.tanguygab.keycard.Utils.keycardTypeKey,PersistentDataType.STRING));
+        dataMap.put("scanner-id",data.get(io.github.tanguygab.keycard.Utils.scannerIdKey,PersistentDataType.STRING));
+        map.put("data",dataMap);
+        return map;
+    }
+    public static ItemStack keyCardFromString(Map<String,Object> map) {
+        ItemStack item = new ItemStack(Material.getMaterial(map.get("type")+""), (int) map.get("amount"));
+        ItemMeta meta = item.getItemMeta();
+        if (map.containsKey("name")) meta.setDisplayName(map.get("name")+"");
+        if (map.containsKey("lore")) meta.setLore((List<String>) map.get("lore"));
+        PersistentDataContainer data = meta.getPersistentDataContainer();
+        Map<String,String> dataMap = (Map<String, String>) map.get("data");
+        data.set(io.github.tanguygab.keycard.Utils.keycardTypeKey,PersistentDataType.STRING,dataMap.get("keycard-type"));
+        data.set(io.github.tanguygab.keycard.Utils.scannerIdKey,PersistentDataType.STRING,dataMap.get("scanner-id"));
+        item.setItemMeta(meta);
+        return item;
     }
 }

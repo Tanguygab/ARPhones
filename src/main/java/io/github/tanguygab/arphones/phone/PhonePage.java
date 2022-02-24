@@ -6,6 +6,7 @@ public enum PhonePage {
     CONTACTS,
     PLAYERS,
     CONTACT_INFO,
+    KEYCARDS,
     LOCK_SCREEN;
 
     PhonePage() {}

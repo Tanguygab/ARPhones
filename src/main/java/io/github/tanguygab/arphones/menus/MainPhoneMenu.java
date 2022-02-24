@@ -17,7 +17,7 @@ import java.util.UUID;
 public class MainPhoneMenu extends PhoneMenu {
 
     public MainPhoneMenu(Player p, Phone phone) {
-        super(p, phone, Bukkit.getServer().createInventory(null,27,Utils.msgs().getMenuTitle()));
+        super(p, phone, Utils.msgs().getMenuTitle(), 27);
     }
 
     @Override
@@ -29,8 +29,12 @@ public class MainPhoneMenu extends PhoneMenu {
 
         inv.setItem(7,MenuUtils.createMenuItem(Material.REDSTONE,lang.getBatteryName(),lang.getBatteryLore(phone.getBattery())));
 
+        if (Bukkit.getServer().getPluginManager().isPluginEnabled("KeyCard"))
+            inv.setItem(22,MenuUtils.createMenuItem(Material.BOOK,"KeyCards",null));
+
         loadSIMItem();
         loadBackground();
+
 
         p.openInventory(inv);
     }
@@ -91,6 +95,10 @@ public class MainPhoneMenu extends PhoneMenu {
                 p.closeInventory();
                 p.sendMessage("Send the name of the new owner of this phone:");
                 ARPhones.get().changingOwners.put(p,phone);
+            }
+            case 22 -> {
+                if (!Bukkit.getServer().getPluginManager().isPluginEnabled("KeyCard")) break;
+                phone.openKeyCards(p);
             }
             default -> {
                 boolean isRedstone = (item != null && item.getType() == Material.REDSTONE) || cursor.getType() == Material.REDSTONE;
