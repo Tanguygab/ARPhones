@@ -69,7 +69,7 @@ public class Utils {
         String phoneUUID = data.get(phoneKey, PersistentDataType.STRING);
         Phone phone = ARPhones.get().phones.get(phoneUUID);
         if (phone == null && owner != null) {
-            phone = new Phone(UUID.randomUUID(),owner);
+            phone = new Phone(UUID.fromString(phoneUUID),owner);
             ARPhones.get().phones.put(phone.getUUID().toString(),phone);
             ARPhones.get().dataFile.set("phones."+phone.getUUID()+".owner",phone.getOwner());
         }
