@@ -23,14 +23,14 @@ public class MainPhoneMenu extends PhoneMenu {
     @Override
     public void open() {
 
-        inv.setItem(10, MenuUtils.createMenuItem(Material.CREEPER_HEAD,lang.getContactsName(),lang.getContactsLore()));
-        inv.setItem(14,MenuUtils.createMenuItem(Material.IRON_DOOR,lang.getLockName(),lang.getLockLore()));
-        inv.setItem(16,MenuUtils.createMenuItem(Material.NAME_TAG,lang.getOwnerName(),lang.getOwnerLore(Bukkit.getServer().getOfflinePlayer(UUID.fromString(phone.getOwner())).getName())));
+        inv.setItem(10, createMenuItem(Material.CREEPER_HEAD,lang.getContactsName(),lang.getContactsLore()));
+        inv.setItem(14,createMenuItem(Material.IRON_DOOR,lang.getLockName(),lang.getLockLore()));
+        inv.setItem(16,createMenuItem(Material.NAME_TAG,lang.getOwnerName(),lang.getOwnerLore(Bukkit.getServer().getOfflinePlayer(UUID.fromString(phone.getOwner())).getName())));
 
-        inv.setItem(7,MenuUtils.createMenuItem(Material.REDSTONE,lang.getBatteryName(),lang.getBatteryLore(phone.getBattery())));
+        inv.setItem(7,createMenuItem(Material.REDSTONE,lang.getBatteryName(),lang.getBatteryLore(phone.getBattery())));
 
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("KeyCard"))
-            inv.setItem(22,MenuUtils.createMenuItem(Material.BOOK,"KeyCards",null));
+            inv.setItem(22,createMenuItem(Material.BOOK,"KeyCards",null));
 
         loadSIMItem();
         loadBackground();
@@ -41,22 +41,16 @@ public class MainPhoneMenu extends PhoneMenu {
 
     private void loadSIMItem() {
         ItemStack sim = phone.getSim() == null
-                ? MenuUtils.createMenuItem(Material.BARRIER,"No SIM card found",null)
-                : MenuUtils.createMenuItem(Material.BOOK,"SIM card", Arrays.asList("","Click to take out"));
+                ? createMenuItem(Material.BARRIER,"No SIM card found",null)
+                : createMenuItem(Material.BOOK,"SIM card", Arrays.asList("","Click to take out"));
         inv.setItem(8,sim);
 
-        //inv.setItem(8,MenuUtils.createMenuItem(Material.REDSTONE_TORCH,lang.getConnectionName(),lang.getConnectionLore(5)));
+        //inv.setItem(8,createMenuItem(Material.REDSTONE_TORCH,lang.getConnectionName(),lang.getConnectionLore(5)));
     }
 
     private void loadBackground() {
-        inv.setItem(12,MenuUtils.createMenuItem(phone.getBackgroundColorBlock(),lang.getBackgroundColorName(),lang.getBackgroundColorLore(phone.getBackgroundColor())));
-
-        ItemStack filler = MenuUtils.createMenuItem(phone.getBackgroundColorPane(),"",null);
-        for (int i = 0; i < inv.getSize(); i++) {
-            ItemStack item = inv.getItem(i);
-            if (item == null || item.getType().isAir() || item.getType().toString().contains("STAINED_GLASS_PANE"))
-                inv.setItem(i,filler);
-        }
+        inv.setItem(12,createMenuItem(phone.getBackgroundColorBlock(),lang.getBackgroundColorName(),lang.getBackgroundColorLore(phone.getBackgroundColor())));
+        fillMenu();
     }
 
     @Override

@@ -5,11 +5,16 @@ import io.github.tanguygab.arphones.config.LanguageFile;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.List;
 
 public abstract class PhoneMenu {
 
@@ -35,6 +40,39 @@ public abstract class PhoneMenu {
 
     public void close() {
         ARPhones.get().openedMenus.remove(p);
+    }
+
+    public void setBackButton(int slot) {
+        inv.setItem(slot,createMenuItem(Material.ARROW, lang.getBackButton(), null));
+    }
+
+    public void fillMenu() {
+        ItemStack filler = getFiller();
+        for (int i = 0; i < inv.getSize(); i++) {
+            ItemStack item = inv.getItem(i);
+            if (item == null || item.getType().isAir() || item.getType().toString().contains("STAINED_GLASS_PANE"))
+                inv.setItem(i,filler);
+        }
+    }
+    public void fillSlots(int... slots) {
+        ItemStack filler = getFiller();
+        for (Integer slot : slots) inv.setItem(slot,filler);
+    }
+
+    public ItemStack getFiller() {
+        return createMenuItem(phone.getBackgroundColorPane(),"",null);
+    }
+
+    public static ItemStack createMenuItem(Material mat, String name, List<String> lore) {
+        ItemStack item = new ItemStack(mat);
+        ItemMeta meta = item.getItemMeta();
+        meta.setDisplayName(Utils.colors("&f"+name));
+        if (lore != null) {
+            lore.forEach(e -> lore.set(lore.indexOf(e), ChatColor.GRAY + e));
+            meta.setLore(lore);
+        }
+        item.setItemMeta(meta);
+        return item;
     }
 
 }

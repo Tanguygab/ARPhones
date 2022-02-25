@@ -1,7 +1,6 @@
 package io.github.tanguygab.arphones.menus;
 
 import io.github.tanguygab.arphones.phone.Phone;
-import io.github.tanguygab.arphones.utils.MenuUtils;
 import io.github.tanguygab.arphones.utils.PhoneUtils;
 import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Material;
@@ -26,14 +25,12 @@ public class ContactInfoMenu extends PhoneMenu {
 
     @Override
     public void open() {
-        ItemStack back = MenuUtils.createMenuItem(Material.ARROW, lang.getBackButton(), null);
-        inv.setItem(49, back);
+        setBackButton(49);
 
-        ItemStack filler = MenuUtils.createMenuItem(phone.getBackgroundColorPane(),"",null);
-        List<Integer> fillerSlots = List.of(0,1,2,3,4,8,9,13,17,18,22,26,27,31,35,36,40,44,45,46,47,48,53);
-        for (int i : fillerSlots) inv.setItem(i,filler);
+        fillSlots(0,1,2,3,4,8,9,13,17,18,22,26,27,31,35,36,40,44,45,46,47,48,53);
 
-        ItemStack head = MenuUtils.createMenuItem(Material.PLAYER_HEAD, contact.getName(),null);
+
+        ItemStack head = createMenuItem(Material.PLAYER_HEAD, contact.getName(),null);
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         if (contact.getPlayerProfile().isComplete()) meta.setOwningPlayer(contact);
         else contact.getPlayerProfile().update().thenRunAsync(()->{
@@ -47,10 +44,10 @@ public class ContactInfoMenu extends PhoneMenu {
         boolean isInCall = PhoneUtils.isInCall(contact);
         boolean isWaitingForCall = PhoneUtils.isWaitingForCall(contact,p);
         ItemStack callItem;
-        if (isWaitingForCall) callItem = MenuUtils.createMenuItem(Material.LIME_WOOL,"Click to accept call!",null);
-        else callItem = MenuUtils.createMenuItem(isInCall ? Material.BARRIER : Material.NOTE_BLOCK,isInCall ? lang.getContactInfoIsInCall(contact.getName()) : lang.getContactInfoCall(contact.getName()),null);
+        if (isWaitingForCall) callItem = createMenuItem(Material.LIME_WOOL,"Click to accept call!",null);
+        else callItem = createMenuItem(isInCall ? Material.BARRIER : Material.NOTE_BLOCK,isInCall ? lang.getContactInfoIsInCall(contact.getName()) : lang.getContactInfoCall(contact.getName()),null);
         inv.setItem(19,callItem);
-        inv.setItem(21,MenuUtils.createMenuItem(Material.OAK_SIGN,lang.getContactInfoMsg(contact.getName()),null));
+        inv.setItem(21,createMenuItem(Material.OAK_SIGN,lang.getContactInfoMsg(contact.getName()),null));
 
         Map<String,List<String>> notes = new HashMap<>();
         notes.put("Job", Arrays.asList("Mojang"));
@@ -61,8 +58,8 @@ public class ContactInfoMenu extends PhoneMenu {
             if (titles.size() > i) {
                 String title = titles.get(i);
                 List<String> note = notes.get(title);
-                inv.setItem(slots.get(i), MenuUtils.createMenuItem(Material.PAPER, title,note));
-            } else inv.setItem(slots.get(i),MenuUtils.createMenuItem(Material.MAP,"Note "+i,Arrays.asList("","Nothing to see here")));
+                inv.setItem(slots.get(i), createMenuItem(Material.PAPER, title,note));
+            } else inv.setItem(slots.get(i),createMenuItem(Material.MAP,"Note "+i,Arrays.asList("","Nothing to see here")));
         }
 
         loadMessages(head);
@@ -75,7 +72,7 @@ public class ContactInfoMenu extends PhoneMenu {
         List<Map<String,String>> msgs = PhoneUtils.getHistory(uuid1,uuid2);
         List<Integer> msgsSlots = List.of(51,42,33,24,15,6);
 
-        ItemStack viewerHead = MenuUtils.createMenuItem(Material.PLAYER_HEAD, p.getName(),null);
+        ItemStack viewerHead = createMenuItem(Material.PLAYER_HEAD, p.getName(),null);
         SkullMeta meta = (SkullMeta) viewerHead.getItemMeta();
         meta.setOwningPlayer(p);
         viewerHead.setItemMeta(meta);
@@ -90,7 +87,7 @@ public class ContactInfoMenu extends PhoneMenu {
             List<String> lore = Arrays.asList(message);
             if (uuid1.equals(sender)) inv.setItem(msgsSlots.get(i)+1,viewerHead);
             else inv.setItem(msgsSlots.get(i)-1,contactHead);
-            inv.setItem(msgsSlots.get(i), MenuUtils.createMenuItem(isCall ? Material.NOTE_BLOCK : Material.PAPER, time.format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy")),lore));
+            inv.setItem(msgsSlots.get(i), createMenuItem(isCall ? Material.NOTE_BLOCK : Material.PAPER, time.format(DateTimeFormatter.ofPattern("HH:mm:ss dd/MM/yyyy")),lore));
         }
     }
 

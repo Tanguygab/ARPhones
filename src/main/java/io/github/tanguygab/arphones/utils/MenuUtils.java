@@ -1,34 +1,11 @@
 package io.github.tanguygab.arphones.utils;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import java.util.*;
 
 public class MenuUtils {
-
-    public static void setPinHead(ItemStack item, char num) {
-        SkullMeta meta = (SkullMeta) item.getItemMeta();
-        SkinUtils.setTexture(meta,num);
-        item.setItemMeta(meta);
-    }
-
-    public static ItemStack createMenuItem(Material mat, String name, List<String> lore) {
-        ItemStack item = new ItemStack(mat);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(Utils.colors("&f"+name));
-        if (lore != null) {
-            lore.forEach(e -> lore.set(lore.indexOf(e), ChatColor.GRAY + e));
-            meta.setLore(lore);
-        }
-        item.setItemMeta(meta);
-        return item;
-    }
 
     public static List<String> getPlayers(List<String> contacts, Player player) {
         List<String> list = new ArrayList<>();

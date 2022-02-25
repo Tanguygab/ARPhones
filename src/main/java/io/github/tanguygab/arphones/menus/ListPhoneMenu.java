@@ -30,15 +30,12 @@ public class ListPhoneMenu extends PhoneMenu {
 
     @Override
     public void open() {
-        ItemStack filler = MenuUtils.createMenuItem(phone.getBackgroundColorPane(),"",null);
-        List<Integer> fillerSlots = List.of(0,1,2,3,4,5,6,7,8,9,17,18,26,27,35,36,44,45,46,47,49,50,51,52,53);
-        for (int i : fillerSlots) inv.setItem(i,filler);
+        fillSlots(0,1,2,3,4,5,6,7,8,9,17,18,26,27,35,36,44,45,46,47,49,50,51,52,53);
 
-        ItemStack add = isContacts ? MenuUtils.createMenuItem(Material.LIME_WOOL, lang.getListAdd(), null) : filler;
+        ItemStack add = isContacts ? createMenuItem(Material.LIME_WOOL, lang.getListAdd(), null) : getFiller();
         inv.setItem(48, add);
 
-        ItemStack back = MenuUtils.createMenuItem(Material.ARROW, lang.getBackButton(), null);
-        inv.setItem(isContacts ? 50 : 49, back);
+        setBackButton(isContacts ? 50 : 49);
 
         loadPlayers();
 
@@ -56,8 +53,8 @@ public class ListPhoneMenu extends PhoneMenu {
             String uuid = list.get(i);
             OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(UUID.fromString(uuid));
             ItemStack head = sim.getFavorites().contains(uuid)
-                    ? MenuUtils.createMenuItem(Material.PLAYER_HEAD,lang.getListFavoriteName(player.getName()),lang.getListFavoriteLore())
-                    : MenuUtils.createMenuItem(Material.PLAYER_HEAD,player.getName(),isContacts ? lang.getListContactLore() : lang.getListPlayerLore());
+                    ? createMenuItem(Material.PLAYER_HEAD,lang.getListFavoriteName(player.getName()),lang.getListFavoriteLore())
+                    : createMenuItem(Material.PLAYER_HEAD,player.getName(),isContacts ? lang.getListContactLore() : lang.getListPlayerLore());
             SkullMeta meta = (SkullMeta) head.getItemMeta();
             if (player.getPlayerProfile().isComplete()) meta.setOwningPlayer(player);
             else player.getPlayerProfile().update().thenRunAsync(()->{
