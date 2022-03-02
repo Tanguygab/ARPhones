@@ -1,5 +1,6 @@
 package io.github.tanguygab.arphones.menus;
 
+import io.github.tanguygab.arphones.ARPhones;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.utils.PhoneUtils;
 import io.github.tanguygab.arphones.utils.Utils;
@@ -97,8 +98,9 @@ public class ContactInfoMenu extends PhoneMenu {
             case 49 -> phone.openListMenu(p,true);
             case 19 -> PhoneUtils.call(p,contact);
             case 21 -> {
-                PhoneUtils.sendMsg(p,contact);
-                loadMessages(inv.getItem(11));
+                p.closeInventory();
+                p.sendMessage("Send the name of the new owner of this phone:");
+                ARPhones.get().sendingMsg.put(p,contact);
             }
         }
         return true;

@@ -24,9 +24,8 @@ public class PhoneUtils {
 
     public static Map<String, String> waitingForCall = new HashMap<>();
 
-    public static void sendMsg(Player sender, OfflinePlayer receiver) {
+    public static void sendMsg(Player sender, OfflinePlayer receiver, String msg) {
         LanguageFile lang = Utils.msgs();
-        String msg = "test";
         saveHistory(msg,sender.getUniqueId().toString(),receiver.getUniqueId().toString());
         async(()->{
             if (isOnline(receiver)) {

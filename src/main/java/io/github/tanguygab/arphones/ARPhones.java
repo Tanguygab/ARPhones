@@ -50,6 +50,7 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
     public Map<String, SIMCard> sims = new HashMap<>();
 
     public Map<Player, Phone> changingOwners = new HashMap<>();
+    public Map<Player, OfflinePlayer> sendingMsg = new HashMap<>();
     public Map<Player, PhoneMenu> openedMenus = new HashMap<>();
 
     public static ARPhones get() {

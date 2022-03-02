@@ -4,6 +4,7 @@ import io.github.tanguygab.arphones.ARPhones;
 import io.github.tanguygab.arphones.SIMCard;
 import io.github.tanguygab.arphones.menus.PhoneMenu;
 import io.github.tanguygab.arphones.phone.Phone;
+import io.github.tanguygab.arphones.utils.PhoneUtils;
 import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -56,18 +57,41 @@ public class BukkitListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
-        if (!ARPhones.get().changingOwners.containsKey(p)) return;
-        e.setCancelled(true);
         String msg = e.getMessage();
+        if (ARPhones.get().changingOwners.containsKey(p)) {
+            e.setCancelled(true);
+            changingOwner(p,msg);
+            return;
+        }
+        if (ARPhones.get().sendingMsg.containsKey(p)) {
+            e.setCancelled(true);
+            sendingMsg(p,msg);
+        }
+
+    }
+
+    private void changingOwner(Player p, String msg) {
         if (msg.equalsIgnoreCase("cancel")) {
             p.sendMessage("Cancelled...");
             ARPhones.get().changingOwners.remove(p);
             return;
         }
         Phone phone = ARPhones.get().changingOwners.get(p);
-        OfflinePlayer newOwner = Bukkit.getServer().getOfflinePlayer(msg);
+        ARPhones.get().changingOwners.remove(p);
+        OfflinePlayer newOwner = Utils.getOfflinePlayer(msg);
         phone.setOwner(newOwner.getUniqueId().toString());
         p.sendMessage("Phone owner changed! New owner: "+newOwner.getName());
+    }
+    private void sendingMsg(Player p, String msg) {
+        if (msg.equalsIgnoreCase("cancel")) {
+            p.sendMessage("Cancelled...");
+            ARPhones.get().sendingMsg.remove(p);
+            return;
+        }
+        OfflinePlayer contact = ARPhones.get().sendingMsg.get(p);
+        ARPhones.get().sendingMsg.remove(p);
+        PhoneUtils.sendMsg(p,contact,msg);
+        p.sendMessage("Message sent to "+contact.getName()+"!");
     }
 
     @EventHandler

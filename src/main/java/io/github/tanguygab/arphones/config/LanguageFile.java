@@ -111,7 +111,7 @@ public class LanguageFile extends YamlConfigurationFile {
     }
 
     public List<String> getListPlayerLore() {
-        return get("contacts-menu.players.player-lore",List.of("","Left-Click to add contact","Right-Click to send a message"));
+        return get("contacts-menu.players.player-lore",List.of("","Left-Click to see profile","Right-Click to add contact"));
     }
     public String getServerName() {
         return get("msgs-calls.server-name","ARandomServer");

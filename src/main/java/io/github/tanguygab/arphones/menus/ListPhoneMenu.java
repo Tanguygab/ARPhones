@@ -110,12 +110,12 @@ public class ListPhoneMenu extends PhoneMenu {
         if (item == null || item.getType() != Material.PLAYER_HEAD) return;
         OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(UUID.fromString(item.getItemMeta().getPersistentDataContainer().get(Utils.contactName,PersistentDataType.STRING)));
 
-        if (click.isLeftClick()) {
+        if (click.isRightClick()) {
             sim.addContact(player.getUniqueId().toString());
             p.sendMessage(player.getName() + " was added to your contacts");
             loadPlayers();
         }
-        else if (click.isRightClick()) PhoneUtils.sendMsg(p,player);
+        else if (click.isLeftClick()) phone.openContactInfoMenu(p,player);
     }
 
     @Override
