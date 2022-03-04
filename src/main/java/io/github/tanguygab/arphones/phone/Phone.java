@@ -92,6 +92,7 @@ public class Phone {
     }
     public void setContactPage(String contact) {
         contactPage = contact;
+        set("contact-page",contact);
     }
 
     public String getPin() {
@@ -151,7 +152,10 @@ public class Phone {
             case LOCK_SCREEN -> openPinMenu(p);
             case CONTACTS -> openListMenu(p,true);
             case PLAYERS -> openListMenu(p,false);
-            case CONTACT_INFO -> openContactInfoMenu(p,Bukkit.getServer().getOfflinePlayer(UUID.fromString(contactPage)));
+            case CONTACT_INFO -> {
+                if (contactPage == null) openListMenu(p, true);
+                else openContactInfoMenu(p, Bukkit.getServer().getOfflinePlayer(UUID.fromString(contactPage)));
+            }
             case KEYCARDS -> openKeyCards(p);
         }
     }

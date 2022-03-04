@@ -99,10 +99,16 @@ public class ContactInfoMenu extends PhoneMenu {
             case 19 -> PhoneUtils.call(p,contact);
             case 21 -> {
                 p.closeInventory();
-                p.sendMessage("Send the name of the new owner of this phone:");
+                p.sendMessage("Write a message to send to"+contact.getName()+":");
                 ARPhones.get().sendingMsg.put(p,contact);
             }
         }
         return true;
+    }
+
+    @Override
+    public void close() {
+        phone.setContactPage(null);
+        super.close();
     }
 }
