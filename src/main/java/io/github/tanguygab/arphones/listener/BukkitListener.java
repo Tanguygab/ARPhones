@@ -51,7 +51,8 @@ public class BukkitListener implements Listener {
     public void onInventoryClose(InventoryCloseEvent e) {
         Map<Player,PhoneMenu> menus = ARPhones.get().openedMenus;
         Player p = (Player) e.getPlayer();
-        if (menus.containsKey(p)) menus.remove(e.getPlayer()).close();
+        PhoneMenu menu = menus.get(p);
+        if (menu != null && menu.inv.equals(e.getInventory())) menus.get(p).close();
     }
 
     @EventHandler(ignoreCancelled = true)

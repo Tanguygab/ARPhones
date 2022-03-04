@@ -20,7 +20,7 @@ public abstract class PhoneMenu {
 
     protected final Player p;
     public final Phone phone;
-    protected Inventory inv;
+    public Inventory inv;
     protected LanguageFile lang = Utils.msgs();
 
     public PhoneMenu(Player p, Phone phone, String title, int slots) {

@@ -82,7 +82,6 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
             } else discord = false;
 
             Map<String,Map<String,Object>> simsMap = dataFile.getConfigurationSection("sims");
-            System.out.println(simsMap);
             for (String el : simsMap.keySet()) {
                 Map<String,Object> map = simsMap.get(el);
                 UUID uuid = UUID.fromString(el);

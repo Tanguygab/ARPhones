@@ -99,7 +99,7 @@ public class ContactInfoMenu extends PhoneMenu {
             case 19 -> PhoneUtils.call(p,contact);
             case 21 -> {
                 p.closeInventory();
-                p.sendMessage("Write a message to send to"+contact.getName()+":");
+                p.sendMessage("Write a message to send to "+contact.getName()+":");
                 ARPhones.get().sendingMsg.put(p,contact);
             }
         }

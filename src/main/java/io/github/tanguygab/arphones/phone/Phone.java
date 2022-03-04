@@ -114,8 +114,6 @@ public class Phone {
     }
 
     public void openMenu(Player p, PhoneMenu menu, PhonePage page) {
-        p.closeInventory();
-
         ARPhones.get().openedMenus.put(p,menu);
         setPage(page);
         menu.open();
