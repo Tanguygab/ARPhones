@@ -75,7 +75,7 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
             PluginManager pm = getServer().getPluginManager();
             pm.registerEvents(new BukkitListener(),this);
             if (pm.isPluginEnabled("KeyCard")) getServer().getPluginManager().registerEvents(new KeyCardListener(),this);
-            if (pm.getPlugin("DiscordSRV") != null && configFile.getBoolean("discord-integration.enabled",true)) {
+            if (isDiscordSRVEnabled()) {
                 DiscordSRV.api.subscribe(discordListener = new DiscordListener());
                 if (DiscordUtil.getJda() != null) discordInit();
                 discord = true;
@@ -141,6 +141,10 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
         ARPhones.get().dataFile.set("voice-channels",channels.isEmpty() ? null : channels);
     }
 
+    public boolean isDiscordSRVEnabled() {
+        return getServer().getPluginManager().getPlugin("DiscordSRV") != null && configFile.getBoolean("discord-integration.enabled",true);
+    }
+
     public void loadRecipes() {
         for (PhoneLook look : PhoneLook.values()) addRecipe("phone-"+look.toString().toLowerCase(),"phone.craft",Utils.getPhone(look),look.getMaterial());
         addRecipe("sim","sim.craft",Utils.getSIM(null,false),null);
@@ -164,8 +168,10 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
     @Override
     public void onDisable() {
         HandlerList.unregisterAll(this);
-        DiscordSRV.api.unsubscribe(discordListener);
-        DiscordUtil.getJda().removeEventListener(discordListener);
+        if (isDiscordSRVEnabled()) {
+            DiscordSRV.api.unsubscribe(discordListener);
+            DiscordUtil.getJda().removeEventListener(discordListener);
+        }
         phones.clear();
     }
 

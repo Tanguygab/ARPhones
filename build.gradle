@@ -27,6 +27,6 @@ repositories {
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.18.2-R0.1-SNAPSHOT'
-    compileOnly 'com.discordsrv:discordsrv:1.25.0-SNAPSHOT'
+    compileOnly 'com.discordsrv:discordsrv:1.25.0'
     compileOnly files('../KeyCard-1.0.jar')
 }

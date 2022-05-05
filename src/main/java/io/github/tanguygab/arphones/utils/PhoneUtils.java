@@ -177,6 +177,7 @@ public class PhoneUtils {
     }
 
     public static boolean isInCall(OfflinePlayer called) {
+        if (!ARPhones.get().isDiscordSRVEnabled()) return false;
         String id = DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(called.getUniqueId());
         Map<String,List<String>> channels = ARPhones.get().dataFile.getConfigurationSection("voice-channels");
         for (List<String> list : channels.values()) {
