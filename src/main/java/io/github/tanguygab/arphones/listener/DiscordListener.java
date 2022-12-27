@@ -3,6 +3,7 @@ package io.github.tanguygab.arphones.listener;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.DiscordReadyEvent;
+import github.scarsz.discordsrv.dependencies.jda.api.entities.Category;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.Member;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.User;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.VoiceChannel;
@@ -52,7 +53,7 @@ public class DiscordListener extends ListenerAdapter {
         String msg;
         if (action.equals("accept")) {
             msg = user.getAsTag()+" accepted your call.";
-            PhoneUtils.createVoiceChannel(PhoneUtils.getCallsCategory(),caller,user);
+            PhoneUtils.createVoiceChannel((Category) PhoneUtils.getCallsCategory(),caller,user);
             PhoneUtils.saveHistory(null,uuid1.toString(),uuid2.toString());
         } else msg = user.getAsTag()+" denied your call";
 

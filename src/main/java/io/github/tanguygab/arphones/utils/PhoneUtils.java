@@ -91,7 +91,7 @@ public class PhoneUtils {
             return;
         }
 
-        Category cat = getCallsCategory();
+        Category cat = (Category) getCallsCategory();
         if (cat == null) {
             sender.sendMessage(lang.getNoCallsCategory());
             return;
@@ -126,7 +126,11 @@ public class PhoneUtils {
         }
     }
 
-    public static void createVoiceChannel(Category cat, User sender, User receiver) {
+    public static void createVoiceChannel(Object cat0, Object sender0, Object receiver0) {
+        Category cat = (Category) cat0;
+        User sender = (User) sender0;
+        User receiver = (User) receiver0;
+
         Guild guild = cat.getGuild();
         Member caller = guild.getMember(sender);
         Member called = guild.getMember(receiver);
@@ -152,7 +156,7 @@ public class PhoneUtils {
                 });
     }
 
-    public static Category getCallsCategory() {
+    public static Object getCallsCategory() {
         String cat = ARPhones.get().configFile.getString("discord-integration.calls-category");
         return DiscordUtil.getJda().getCategoryById(cat);
     }

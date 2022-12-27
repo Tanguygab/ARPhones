@@ -1,6 +1,7 @@
 package io.github.tanguygab.arphones;
 
 import github.scarsz.discordsrv.DiscordSRV;
+import github.scarsz.discordsrv.dependencies.jda.api.entities.Category;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.User;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.VoiceChannel;
 import github.scarsz.discordsrv.objects.managers.AccountLinkManager;
@@ -216,7 +217,7 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
                     String msg;
                     if (arg.equals("accept")) {
                         msg = " accepted your call.";
-                        PhoneUtils.createVoiceChannel(PhoneUtils.getCallsCategory(),caller,called);
+                        PhoneUtils.createVoiceChannel((Category) PhoneUtils.getCallsCategory(),caller,called);
                         PhoneUtils.saveHistory(null,player.getUniqueId().toString(),p.getUniqueId().toString());
                     } else msg = " denied your call";
 
