@@ -3,7 +3,6 @@ package io.github.tanguygab.arphones.listener;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.DiscordReadyEvent;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.Category;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.Member;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.User;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.VoiceChannel;
@@ -14,7 +13,9 @@ import github.scarsz.discordsrv.dependencies.jda.api.hooks.ListenerAdapter;
 import github.scarsz.discordsrv.objects.managers.AccountLinkManager;
 import github.scarsz.discordsrv.util.DiscordUtil;
 import io.github.tanguygab.arphones.ARPhones;
+import io.github.tanguygab.arphones.utils.DiscordUtils;
 import io.github.tanguygab.arphones.utils.PhoneUtils;
+import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +40,7 @@ public class DiscordListener extends ListenerAdapter {
         String[] arr = id.split("-");
         String action = arr[1];
         String callerID = arr[2];
-        if (!PhoneUtils.waitingForCall.containsKey(callerID)) {
+        if (!DiscordUtils.waitingForCall.containsKey(callerID)) {
             e.reply("This player isn't calling you!").queue();
             return;
         }
@@ -49,16 +50,16 @@ public class DiscordListener extends ListenerAdapter {
 
         Player player = Bukkit.getServer().getPlayer(uuid1);
         User caller = DiscordUtil.getUserById(callerID);
-        PhoneUtils.waitingForCall.remove(callerID);
+        DiscordUtils.waitingForCall.remove(callerID);
         String msg;
         if (action.equals("accept")) {
             msg = user.getAsTag()+" accepted your call.";
-            PhoneUtils.createVoiceChannel((Category) PhoneUtils.getCallsCategory(),caller,user);
+            DiscordUtils.createVoiceChannel(DiscordUtils.getCallsCategory(),caller,user);
             PhoneUtils.saveHistory(null,uuid1.toString(),uuid2.toString());
         } else msg = user.getAsTag()+" denied your call";
 
-        if (PhoneUtils.isOnline(player)) player.sendMessage(msg);
-        else PhoneUtils.sendMsg(caller,msg);
+        if (Utils.isOnline(player)) player.sendMessage(msg);
+        else DiscordUtils.sendMsg(caller,msg);
 
         if (action.equals("accept")) e.reply("You accepted "+player.getName()+"'s call!").queue();
         else e.reply("You denied "+player.getName()+"'s call!").queue();

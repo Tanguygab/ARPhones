@@ -30,6 +30,10 @@ public class Utils {
     public static NamespacedKey contactName = new NamespacedKey(ARPhones.get(),"contact-name");
     public static NamespacedKey SIMKey = new NamespacedKey(ARPhones.get(),"sim");
 
+    public static boolean isOnline(OfflinePlayer player) {
+        return player != null && player.isOnline() && player.getPlayer() != null;
+    }
+
     public static ItemStack getPhone(PhoneLook look) {
         ItemStack item = new ItemStack(look.getMaterial());
         ItemMeta meta = item.getItemMeta();

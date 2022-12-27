@@ -2,6 +2,7 @@ package io.github.tanguygab.arphones.menus;
 
 import io.github.tanguygab.arphones.ARPhones;
 import io.github.tanguygab.arphones.phone.Phone;
+import io.github.tanguygab.arphones.utils.DiscordUtils;
 import io.github.tanguygab.arphones.utils.PhoneUtils;
 import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Material;
@@ -43,7 +44,7 @@ public class ContactInfoMenu extends PhoneMenu {
         inv.setItem(11,head);
 
         boolean isInCall = PhoneUtils.isInCall(contact);
-        boolean isWaitingForCall = PhoneUtils.isWaitingForCall(contact,p);
+        boolean isWaitingForCall = ARPhones.get().isDiscordSRVEnabled() && DiscordUtils.isWaitingForCall(contact,p);
         ItemStack callItem;
         if (isWaitingForCall) callItem = createMenuItem(Material.LIME_WOOL,"Click to accept call!",null);
         else callItem = createMenuItem(isInCall ? Material.BARRIER : Material.NOTE_BLOCK,isInCall ? lang.getContactInfoIsInCall(contact.getName()) : lang.getContactInfoCall(contact.getName()),null);

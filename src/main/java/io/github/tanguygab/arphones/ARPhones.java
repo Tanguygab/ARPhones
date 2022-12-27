@@ -16,6 +16,7 @@ import io.github.tanguygab.arphones.menus.PhoneMenu;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.phone.PhoneLook;
 import io.github.tanguygab.arphones.phone.PhonePage;
+import io.github.tanguygab.arphones.utils.DiscordUtils;
 import io.github.tanguygab.arphones.utils.PhoneUtils;
 import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Material;
@@ -44,7 +45,7 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
     public ConfigurationFile dataFile;
     public ConfigurationFile historyFile;
     public LanguageFile languageFile;
-    public boolean discord;
+    private boolean discord;
     private DiscordListener discordListener;
 
     public Map<String, Phone> phones = new HashMap<>();
@@ -76,7 +77,7 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
             PluginManager pm = getServer().getPluginManager();
             pm.registerEvents(new BukkitListener(),this);
             if (pm.isPluginEnabled("KeyCard")) getServer().getPluginManager().registerEvents(new KeyCardListener(),this);
-            if (isDiscordSRVEnabled()) {
+            if (getServer().getPluginManager().getPlugin("DiscordSRV") != null && configFile.getBoolean("discord-integration.enabled",true)) {
                 DiscordSRV.api.subscribe(discordListener = new DiscordListener());
                 if (DiscordUtil.getJda() != null) discordInit();
                 discord = true;
@@ -143,7 +144,7 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
     }
 
     public boolean isDiscordSRVEnabled() {
-        return getServer().getPluginManager().getPlugin("DiscordSRV") != null && configFile.getBoolean("discord-integration.enabled",true);
+        return discord;
     }
 
     public void loadRecipes() {
@@ -169,7 +170,7 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
     @Override
     public void onDisable() {
         HandlerList.unregisterAll(this);
-        if (isDiscordSRVEnabled()) {
+        if (discord) {
             DiscordSRV.api.unsubscribe(discordListener);
             DiscordUtil.getJda().removeEventListener(discordListener);
         }
@@ -198,31 +199,35 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
                     return true;
                 }
                 case "accept","deny" -> {
+                    if (discord) {
+                        p.sendMessage("This feature is disabled.");
+                        return true;
+                    }
                     String callername = args[1];
                     OfflinePlayer player = Utils.getOfflinePlayer(callername);
                     if (player == null) {
-                        p.sendMessage("This player doesn't exist anymore!");
+                        p.sendMessage("This player doesn't exist!");
                         return true;
                     }
                     AccountLinkManager accounts = DiscordSRV.getPlugin().getAccountLinkManager();
                     String callerID = accounts.getDiscordId(player.getUniqueId());
-                    if (!PhoneUtils.waitingForCall.containsKey(callerID)) {
+                    if (!DiscordUtils.waitingForCall.containsKey(callerID)) {
                         p.sendMessage("This player isn't calling you!");
                         return true;
                     }
                     User caller = DiscordUtil.getUserById(callerID);
                     String calledID = accounts.getDiscordId(p.getUniqueId());
                     User called = DiscordUtil.getUserById(calledID);
-                    PhoneUtils.waitingForCall.remove(callerID);
+                    DiscordUtils.waitingForCall.remove(callerID);
                     String msg;
                     if (arg.equals("accept")) {
                         msg = " accepted your call.";
-                        PhoneUtils.createVoiceChannel((Category) PhoneUtils.getCallsCategory(),caller,called);
+                        DiscordUtils.createVoiceChannel(DiscordUtils.getCallsCategory(),caller,called);
                         PhoneUtils.saveHistory(null,player.getUniqueId().toString(),p.getUniqueId().toString());
                     } else msg = " denied your call";
 
-                    if (PhoneUtils.isOnline(player)) player.getPlayer().sendMessage(sender.getName()+msg);
-                    else PhoneUtils.sendMsg(caller,called.getAsMention()+msg);
+                    if (Utils.isOnline(player)) player.getPlayer().sendMessage(sender.getName()+msg);
+                    else DiscordUtils.sendMsg(caller,called.getAsMention()+msg);
 
                     if (arg.equals("accept")) p.sendMessage("You accepted "+player.getName()+"'s call!");
                     else p.sendMessage("You denied "+player.getName()+"'s call!");
