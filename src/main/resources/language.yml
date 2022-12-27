@@ -66,8 +66,10 @@ msgs-calls:
       notified: "%player% was notified!"
       msg: "%player% sent you a phone message: %msg%"
       call: "%player% is calling you on his phone! Join him on Discord!"
+      cant-call-self: "You can't call yourself!"
       cant-notify:
-        offline: "This player isn't online."
+        call: "This player isn't online."
+        msg: "This player isn't online, but your message was sent."
     discord:
       msg: "%player% sent you a phone message on %server%: %msg%"
       call: "%player% is calling you on his phone on %server%!"

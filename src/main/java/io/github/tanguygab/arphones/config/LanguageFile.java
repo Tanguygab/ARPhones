@@ -104,7 +104,7 @@ public class LanguageFile extends YamlConfigurationFile {
         return get("contacts-menu.contact.contact-lore",List.of("","Left-Click to see profile","Right-Click to add favorite","Drop to remove contact"));
     }
     public String getListFavoriteName(String name) {
-        return get("contacts-menu.contact.favorite-name","&6\u272A %player% \u272A").replace("%player%",name);
+        return get("contacts-menu.contact.favorite-name","&6✪ %player% ✪").replace("%player%",name);
     }
     public List<String> getListFavoriteLore() {
         return get("contacts-menu.contact.favorite-lore",List.of("","Left-Click to see profile","Right-Click to remove favorite","Drop to remove contact"));
@@ -136,13 +136,19 @@ public class LanguageFile extends YamlConfigurationFile {
     public String getDiscordCall(String p) {
         return getNotificationMsg("discord.call","%player% is calling you on his phone on %server%!",p,"",true);
     }
+    public String getCantCallSelf() {
+        return get("msgs-calls.notifications.ingame.cant-call-self","You can't call yourself!");
+    }
 
     public String getDiscordCantNotifify(boolean discordExists) {
         if (discordExists) return get("msgs-calls.notifications.discord.cant-notify.mc-but-discord","This player isn't online, but has been notified on Discord!");
         return get("msgs-calls.notifications.discord.cant-notify.mc-and-discord","This player isn't online, and isn't linked to Discord. Ask them to do /discord link next time you see them!");
     }
-    public String getCantNotifify() {
-        return get("msgs-calls.notifications.ingame.cant-notify.msg","This player isn't online!");
+    public String getCantNotififyMsg() {
+        return get("msgs-calls.notifications.ingame.cant-notify.msg","This player isn't online, but your message was sent.");
+    }
+    public String getCantNotififyCall() {
+        return get("msgs-calls.notifications.ingame.cant-notify.call","This player isn't online.");
     }
     public String getDiscordNotificationDisabled() {
         return get("msg-calls.discord.cant-notify.notifications-disabled","This player isn't online and has Discord notification disabled!");
@@ -161,6 +167,9 @@ public class LanguageFile extends YamlConfigurationFile {
         return get("contact-info.msg","Message %player%").replace("%player%",name);
     }
 
+    public String getDiscordDisabled() {
+        return get("discord.feature-disabled","This feature isn't enabled!");
+    }
     public String getNotLinked() {
         return get("discord.not-linked","You are not linked to Discord! Do /discord link");
     }

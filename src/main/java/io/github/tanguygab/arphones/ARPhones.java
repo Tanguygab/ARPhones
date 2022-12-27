@@ -200,7 +200,7 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
                 }
                 case "accept","deny" -> {
                     if (discord) {
-                        p.sendMessage("This feature is disabled.");
+                        p.sendMessage(languageFile.getDiscordDisabled());
                         return true;
                     }
                     String callername = args[1];

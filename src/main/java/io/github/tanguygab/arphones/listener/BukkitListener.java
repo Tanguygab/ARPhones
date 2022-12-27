@@ -92,7 +92,6 @@ public class BukkitListener implements Listener {
         OfflinePlayer contact = ARPhones.get().sendingMsg.get(p);
         ARPhones.get().sendingMsg.remove(p);
         PhoneUtils.sendMsg(p,contact,msg);
-        p.sendMessage("Message sent to "+contact.getName()+"!");
     }
 
     @EventHandler

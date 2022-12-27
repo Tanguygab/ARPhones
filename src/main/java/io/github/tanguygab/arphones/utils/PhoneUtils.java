@@ -21,7 +21,7 @@ public class PhoneUtils {
                 return;
             }
             if (!ARPhones.get().isDiscordSRVEnabled()) {
-                sender.sendMessage(lang.getCantNotifify());
+                sender.sendMessage(lang.getCantNotififyMsg());
                 return;
             }
             if (hasNotificationsOff(receiver)) {
@@ -32,15 +32,15 @@ public class PhoneUtils {
     }
 
     public static void call(Player sender, OfflinePlayer receiver) {
+        LanguageFile lang = Utils.msgs();
         if (!ARPhones.get().isDiscordSRVEnabled()) {
-            sender.sendMessage("This feature isn't enabled!");
+            sender.sendMessage(lang.getDiscordDisabled());
             return;
         }
         if (sender == receiver.getPlayer()) {
-            sender.sendMessage("You can't call yourself!");
+            sender.sendMessage(lang.getCantCallSelf());
             return;
         }
-        LanguageFile lang = Utils.msgs();
         if (isInCall(receiver)) {
             sender.sendMessage(lang.isInCall(receiver.getName()));
             return;
@@ -50,7 +50,7 @@ public class PhoneUtils {
             return;
         }
         if (!ARPhones.get().isDiscordSRVEnabled()) {
-            sender.sendMessage(lang.getCantNotifify());
+            sender.sendMessage(lang.getCantNotififyCall());
             return;
         }
         if (hasNotificationsOff(receiver)) {
