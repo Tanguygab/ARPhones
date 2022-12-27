@@ -41,7 +41,7 @@ public class PhoneUtils {
                 sender.sendMessage(lang.getDiscordNotificationDisabled());
                 return;
             }
-            User user = getDiscord(receiver);
+            User user = (User) getDiscord(receiver);
             if (user != null) {
                 sendMsg(user,lang.getDiscordMessage(sender,msg));
                 sender.sendMessage(lang.getDiscordCantNotifify(true));
@@ -80,12 +80,12 @@ public class PhoneUtils {
 
     private static void createVoiceChannel(Player sender, OfflinePlayer receiver,String senderMsg) {
         LanguageFile lang = Utils.msgs();
-        User user1 = getDiscord(sender);
+        User user1 = (User) getDiscord(sender);
         if (user1 == null) {
             sender.sendMessage(lang.getNotLinked());
             return;
         }
-        User user2 = getDiscord(receiver);
+        User user2 = (User) getDiscord(receiver);
         if (user2 == null) {
             sender.sendMessage(lang.getReceiverNotLinked());
             return;
@@ -163,13 +163,13 @@ public class PhoneUtils {
     public static boolean hasNotificationsOff(OfflinePlayer receiver) {
         return ARPhones.get().dataFile.getStringList("notifications-off", new ArrayList<>()).contains(receiver.getUniqueId().toString());
     }
-    public static User getDiscord(OfflinePlayer player) {
+    public static Object getDiscord(OfflinePlayer player) {
         String id = DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(player.getUniqueId());
         if (id == null) return null;
         return DiscordUtil.getUserById(id);
     }
-    public static void sendMsg(User user, String msg) {
-        user.openPrivateChannel().queue(c -> c.sendMessage(msg).queue());
+    public static void sendMsg(Object user, String msg) {
+        ((User)user).openPrivateChannel().queue(c -> c.sendMessage(msg).queue());
     }
 
     private static void async(Runnable run) {

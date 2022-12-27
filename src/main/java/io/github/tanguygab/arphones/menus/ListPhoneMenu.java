@@ -3,7 +3,6 @@ package io.github.tanguygab.arphones.menus;
 import io.github.tanguygab.arphones.SIMCard;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.utils.MenuUtils;
-import io.github.tanguygab.arphones.utils.PhoneUtils;
 import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
