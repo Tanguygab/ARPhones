@@ -199,12 +199,11 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
                     return true;
                 }
                 case "accept","deny" -> {
-                    if (discord) {
+                    if (!discord) {
                         p.sendMessage(languageFile.getDiscordDisabled());
                         return true;
                     }
-                    String callername = args[1];
-                    OfflinePlayer player = Utils.getOfflinePlayer(callername);
+                    OfflinePlayer player = args.length > 1 ? Utils.getOfflinePlayer(args[1]) : null;
                     if (player == null) {
                         p.sendMessage("This player doesn't exist!");
                         return true;
