@@ -47,7 +47,8 @@ public class Contact {
     }
     public void setNote(int pos, String note) {
         notes.addAll(Collections.nCopies(pos, ""));
-        notes.set(pos,note);
+        if (notes.size() > pos) notes.set(pos,note);
+        else notes.add(note);
         set("notes",notes);
     }
 }
