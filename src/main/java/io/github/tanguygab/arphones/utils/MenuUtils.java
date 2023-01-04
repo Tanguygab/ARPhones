@@ -1,5 +1,6 @@
 package io.github.tanguygab.arphones.utils;
 
+import io.github.tanguygab.arphones.phone.sim.Contact;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -7,25 +8,20 @@ import java.util.*;
 
 public class MenuUtils {
 
-    public static List<String> getPlayers(List<String> contacts, Player player) {
-        List<String> list = new ArrayList<>();
-        OfflinePlayer[] offps = Bukkit.getServer().getOfflinePlayers();
-        for (OfflinePlayer p : offps) {
-            String uuid = p.getUniqueId().toString();
-            if (!contacts.contains(uuid) && !player.getUniqueId().toString().equals(uuid) && (p.isOnline() || p.hasPlayedBefore())) list.add(uuid);
-        }
-        return list;
+    public static List<UUID> getPlayers(List<Contact> contacts, Player player) {
+        List<String> contactsUUIDs = contacts.stream().map(contact -> contact.getUUID().toString()).toList();
+
+        return Arrays.stream(Bukkit.getServer().getOfflinePlayers())
+                .filter(p->!contactsUUIDs.contains(p.getUniqueId().toString())
+                        && !player.getUniqueId().toString().equals(p.getUniqueId().toString())
+                        && (p.isOnline() || p.hasPlayedBefore()))
+                .map(OfflinePlayer::getUniqueId)
+                .toList();
     }
 
-    public static List<String> sort(List<String> contacts, List<String> favorites) {
-        Map<String,String> contactsNames = new HashMap<>();
-        contacts.forEach(uuid->contactsNames.put(Bukkit.getServer().getOfflinePlayer(UUID.fromString(uuid)).getName(),uuid));
-
-        Map<String,String> sortedMap = new TreeMap<>();
-        contactsNames.forEach((name,uuid)->{
-            if (favorites.contains(contactsNames.get(name))) sortedMap.put("0"+name,uuid);
-            else sortedMap.put("1"+name,uuid);
-        });
+    public static List<UUID> sort(List<Contact> contacts) {
+        Map<String,UUID> sortedMap = new TreeMap<>();
+        contacts.forEach(contact->sortedMap.put(contact.isFavorite() ? "0"+contact.getUUID() : "1"+contact.getUUID(),contact.getUUID()));
         return new ArrayList<>(sortedMap.values());
     }
 

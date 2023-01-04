@@ -1,7 +1,7 @@
 package io.github.tanguygab.arphones.utils;
 
 import io.github.tanguygab.arphones.ARPhones;
-import io.github.tanguygab.arphones.SIMCard;
+import io.github.tanguygab.arphones.phone.sim.SIMCard;
 import io.github.tanguygab.arphones.config.LanguageFile;
 import io.github.tanguygab.arphones.phone.PhoneLook;
 import io.github.tanguygab.arphones.config.ConfigurationFile;
@@ -93,9 +93,6 @@ public class Utils {
 
     public static void addSIM(SIMCard sim) {
         ARPhones.get().sims.put(sim.getUUID().toString(),sim);
-        ConfigurationFile config = ARPhones.get().dataFile;
-        config.set("sims."+sim.getUUID()+".contacts",sim.getContacts());
-        config.set("sims."+sim.getUUID()+".favorites",sim.getFavorites());
     }
 
     public static String colors(String s) {
@@ -104,13 +101,6 @@ public class Utils {
 
     public static LanguageFile msgs() {
         return ARPhones.get().languageFile;
-    }
-
-    public static void removeInvalidPlayers(List<String> list) {
-        list.forEach(contact->{
-            OfflinePlayer p = Bukkit.getServer().getOfflinePlayer(UUID.fromString(contact));
-            if (!p.hasPlayedBefore() && !p.isOnline()) list.remove(contact);
-        });
     }
 
     public static OfflinePlayer getOfflinePlayer(String player) {

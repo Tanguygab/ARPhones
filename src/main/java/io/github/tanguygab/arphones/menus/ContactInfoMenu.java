@@ -2,6 +2,7 @@ package io.github.tanguygab.arphones.menus;
 
 import io.github.tanguygab.arphones.ARPhones;
 import io.github.tanguygab.arphones.phone.Phone;
+import io.github.tanguygab.arphones.phone.sim.Contact;
 import io.github.tanguygab.arphones.utils.DiscordUtils;
 import io.github.tanguygab.arphones.utils.PhoneUtils;
 import io.github.tanguygab.arphones.utils.Utils;
@@ -51,24 +52,28 @@ public class ContactInfoMenu extends PhoneMenu {
         inv.setItem(19,callItem);
         inv.setItem(21,createMenuItem(Material.OAK_SIGN,lang.getContactInfoMsg(contact.getName()),null));
 
-        Map<String,List<String>> notes = new HashMap<>();
-        notes.put("Job", Arrays.asList("Mojang"));
-        notes.put("Location",Arrays.asList("Ur Mom"));
-        List<String> titles = new ArrayList<>(notes.keySet());
-        List<Integer> slots = List.of(28,29,30,37,38,39);
-        for (int i = 0; i < slots.size(); i++) {
-            if (titles.size() > i) {
-                String title = titles.get(i);
-                List<String> note = notes.get(title);
-                inv.setItem(slots.get(i), createMenuItem(Material.PAPER, title,note));
-            } else inv.setItem(slots.get(i),createMenuItem(Material.MAP,"Note "+i,Arrays.asList("","Nothing to see here")));
-        }
-
+        loadNotes();
         loadMessages(head);
         p.openInventory(inv);
     }
 
-    public void loadMessages(ItemStack contactHead) {
+    private void loadNotes() {
+        Contact contact = phone.getSim().getContact(this.contact.getUniqueId());
+        List<String> notes = contact.getNotes();
+
+        List<Integer> slots = List.of(28,29,30,37,38,39);
+        for (int i = 0; i < slots.size(); i++) {
+            String note = "\nClick to add a note";
+            Material item = Material.MAP;
+            if (notes.size() > i && !notes.get(i).equals("")) {
+                note = notes.get(i);
+                item = Material.PAPER;
+            }
+            inv.setItem(slots.get(i),createMenuItem(item,"Note "+(i+1),Arrays.asList(note.split("\\n"))));
+        }
+    }
+
+    private void loadMessages(ItemStack contactHead) {
         String uuid1 = p.getUniqueId().toString();
         String uuid2 = contact.getUniqueId().toString();
         List<Map<String,String>> msgs = PhoneUtils.getHistory(uuid1,uuid2);
@@ -96,6 +101,19 @@ public class ContactInfoMenu extends PhoneMenu {
     @Override
     public boolean onClick(ItemStack item, int slot, ClickType click) {
         switch (slot) {
+            case 28,29,30,37,38,39 -> {
+                int note = slot < 31 ? slot-28 : slot-34;
+                Contact contact1 = phone.getSim().getContact(contact.getUniqueId());
+                if (click == ClickType.DROP) {
+                    if (item.getType() == Material.MAP) break;
+                    contact1.setNote(note,"");
+                    inv.setItem(slot,createMenuItem(Material.MAP,"Note "+(note+1),Arrays.asList("","Click to add a note")));
+                    break;
+                }
+                p.closeInventory();
+                p.sendMessage("Write a note for "+contact.getName()+":");
+                ARPhones.get().settingNote.put(p,List.of(contact1,note));
+            }
             case 49 -> phone.openListMenu(p,true);
             case 19 -> PhoneUtils.call(p,contact);
             case 21 -> {

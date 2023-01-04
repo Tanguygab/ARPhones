@@ -1,7 +1,7 @@
 package io.github.tanguygab.arphones.menus;
 
 import io.github.tanguygab.arphones.ARPhones;
-import io.github.tanguygab.arphones.SIMCard;
+import io.github.tanguygab.arphones.phone.sim.SIMCard;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.utils.MenuUtils;
 import io.github.tanguygab.arphones.utils.Utils;

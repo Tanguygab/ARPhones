@@ -1,7 +1,8 @@
 package io.github.tanguygab.arphones.listener;
 
 import io.github.tanguygab.arphones.ARPhones;
-import io.github.tanguygab.arphones.SIMCard;
+import io.github.tanguygab.arphones.phone.sim.Contact;
+import io.github.tanguygab.arphones.phone.sim.SIMCard;
 import io.github.tanguygab.arphones.menus.PhoneMenu;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.utils.PhoneUtils;
@@ -24,6 +25,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -67,8 +69,12 @@ public class BukkitListener implements Listener {
         if (ARPhones.get().sendingMsg.containsKey(p)) {
             e.setCancelled(true);
             sendingMsg(p,msg);
+            return;
         }
-
+        if (ARPhones.get().settingNote.containsKey(p)) {
+            e.setCancelled(true);
+            settingNote(p,msg);
+        }
     }
 
     private void changingOwner(Player p, String msg) {
@@ -92,6 +98,19 @@ public class BukkitListener implements Listener {
         OfflinePlayer contact = ARPhones.get().sendingMsg.get(p);
         ARPhones.get().sendingMsg.remove(p);
         PhoneUtils.sendMsg(p,contact,msg);
+    }
+    private void settingNote(Player p, String msg) {
+        if (msg.equalsIgnoreCase("cancel")) {
+            p.sendMessage("Cancelled...");
+            ARPhones.get().settingNote.remove(p);
+            return;
+        }
+        List<Object> list = ARPhones.get().settingNote.get(p);
+        Contact contact = (Contact) list.get(0);
+        int note = (int) list.get(1);
+        ARPhones.get().sendingMsg.remove(p);
+        contact.setNote(note,msg);
+        p.sendMessage("Note "+(note+1)+" set to : "+msg);
     }
 
     @EventHandler

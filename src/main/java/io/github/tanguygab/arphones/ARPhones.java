@@ -1,7 +1,6 @@
 package io.github.tanguygab.arphones;
 
 import github.scarsz.discordsrv.DiscordSRV;
-import github.scarsz.discordsrv.dependencies.jda.api.entities.Category;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.User;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.VoiceChannel;
 import github.scarsz.discordsrv.objects.managers.AccountLinkManager;
@@ -16,9 +15,12 @@ import io.github.tanguygab.arphones.menus.PhoneMenu;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.phone.PhoneLook;
 import io.github.tanguygab.arphones.phone.PhonePage;
+import io.github.tanguygab.arphones.phone.sim.Contact;
+import io.github.tanguygab.arphones.phone.sim.SIMCard;
 import io.github.tanguygab.arphones.utils.DiscordUtils;
 import io.github.tanguygab.arphones.utils.PhoneUtils;
 import io.github.tanguygab.arphones.utils.Utils;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
@@ -52,6 +54,7 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
     public Map<String, SIMCard> sims = new HashMap<>();
 
     public Map<Player, Phone> changingOwners = new HashMap<>();
+    public Map<Player, List<Object>> settingNote = new HashMap<>();
     public Map<Player, OfflinePlayer> sendingMsg = new HashMap<>();
     public Map<Player, PhoneMenu> openedMenus = new HashMap<>();
 
@@ -88,13 +91,19 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
                 Map<String,Object> map = simsMap.get(el);
                 UUID uuid = UUID.fromString(el);
 
-                List<String> contactsStr = map.containsKey("contacts") ? (List<String>) map.get("contacts") : new ArrayList<>();
-                List<String> favoritesStr = map.containsKey("favorites") ? (List<String>) map.get("favorites") : new ArrayList<>();
+                Map<String,Map<String,Object>> contactsCfg = map.containsKey("contacts") ? (Map<String,Map<String,Object>>) map.get("contacts") : new HashMap<>();
+                Map<UUID,Contact> contacts = new HashMap<>();
 
-                Utils.removeInvalidPlayers(contactsStr);
-                Utils.removeInvalidPlayers(favoritesStr);
+                contactsCfg.forEach((contactUUIDString,info)->{
+                    UUID contactUUID = UUID.fromString(contactUUIDString);
+                    OfflinePlayer p = Bukkit.getServer().getOfflinePlayer(contactUUID);
+                    if (!p.hasPlayedBefore() && !p.isOnline()) return;
+                    boolean isFavorite = (boolean) info.getOrDefault("favorite",false);
+                    List<String> notes = (List<String>) info.getOrDefault("notes",new ArrayList<>());
+                    contacts.put(contactUUID, new Contact(uuid,contactUUID,isFavorite,notes));
+                });
 
-                SIMCard sim = new SIMCard(uuid,contactsStr,favoritesStr);
+                SIMCard sim = new SIMCard(uuid,contacts);
                 ARPhones.get().sims.put(el,sim);
             }
 

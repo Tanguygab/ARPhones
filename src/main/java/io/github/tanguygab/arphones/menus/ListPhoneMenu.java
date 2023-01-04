@@ -1,6 +1,7 @@
 package io.github.tanguygab.arphones.menus;
 
-import io.github.tanguygab.arphones.SIMCard;
+import io.github.tanguygab.arphones.phone.sim.Contact;
+import io.github.tanguygab.arphones.phone.sim.SIMCard;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.utils.MenuUtils;
 import io.github.tanguygab.arphones.utils.Utils;
@@ -42,16 +43,16 @@ public class ListPhoneMenu extends PhoneMenu {
     }
 
     private void loadPlayers() {
-        List<String> list = isContacts ? MenuUtils.sort(sim.getContacts(), sim.getFavorites()) : MenuUtils.getPlayers(sim.getContacts(), p);
+        List<UUID> list = isContacts ? MenuUtils.sort(sim.getContacts()) : MenuUtils.getPlayers(sim.getContacts(), p);
 
         List<Integer> slots = List.of(10,11,12,13,14,15,16,19,20,21,22,23,24,25,28,29,30,31,32,33,34,37,38,39,40,41,42,43);
         for (int i = 0; i < slots.size(); i++) {
             int slot = slots.get(i);
             inv.setItem(slot,null);
             if (list.size() < i+1) continue;
-            String uuid = list.get(i);
-            OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(UUID.fromString(uuid));
-            ItemStack head = sim.getFavorites().contains(uuid)
+            UUID uuid = list.get(i);
+            OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(uuid);
+            ItemStack head = isContacts && sim.getContact(uuid).isFavorite()
                     ? createMenuItem(Material.PLAYER_HEAD,lang.getListFavoriteName(player.getName()),lang.getListFavoriteLore())
                     : createMenuItem(Material.PLAYER_HEAD,player.getName(),isContacts ? lang.getListContactLore() : lang.getListPlayerLore());
             SkullMeta meta = (SkullMeta) head.getItemMeta();
@@ -81,20 +82,14 @@ public class ListPhoneMenu extends PhoneMenu {
         switch (click) {
             case LEFT, SHIFT_LEFT -> phone.openContactInfoMenu(p,player);
             case RIGHT, SHIFT_RIGHT -> {
-                String uuid = player.getUniqueId().toString();
-                if (sim.getFavorites().contains(uuid)) {
-                    sim.removeFavorite(uuid);
-                    p.sendMessage(player.getName() + " was removed from your favorites");
-                    loadPlayers();
-                    return;
-                }
-                sim.addFavorite(uuid);
-                p.sendMessage(player.getName() + " was added to your favorites");
+                Contact contact = sim.getContact(player.getUniqueId());
+                boolean newStatus = !contact.isFavorite();
+                contact.setFavorite(newStatus);
+                p.sendMessage(player.getName() + " was "+(newStatus ? "added" : "removed")+" from your favorites");
                 loadPlayers();
             }
             case DROP -> {
-                String uuid = player.getUniqueId().toString();
-                sim.removeContact(uuid);
+                sim.removeContact(player.getUniqueId());
                 p.sendMessage(player.getName() + " was removed from your contacts");
                 loadPlayers();
             }
@@ -110,7 +105,7 @@ public class ListPhoneMenu extends PhoneMenu {
         OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(UUID.fromString(item.getItemMeta().getPersistentDataContainer().get(Utils.contactName,PersistentDataType.STRING)));
 
         if (click.isRightClick()) {
-            sim.addContact(player.getUniqueId().toString());
+            sim.addContact(player.getUniqueId());
             p.sendMessage(player.getName() + " was added to your contacts");
             loadPlayers();
         }
