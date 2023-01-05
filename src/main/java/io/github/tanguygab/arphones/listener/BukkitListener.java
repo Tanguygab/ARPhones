@@ -1,15 +1,12 @@
 package io.github.tanguygab.arphones.listener;
 
 import io.github.tanguygab.arphones.ARPhones;
-import io.github.tanguygab.arphones.phone.sim.Contact;
 import io.github.tanguygab.arphones.phone.sim.SIMCard;
 import io.github.tanguygab.arphones.menus.PhoneMenu;
 import io.github.tanguygab.arphones.phone.Phone;
-import io.github.tanguygab.arphones.utils.PhoneUtils;
 import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -25,7 +22,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -54,63 +50,19 @@ public class BukkitListener implements Listener {
         Map<Player,PhoneMenu> menus = ARPhones.get().openedMenus;
         Player p = (Player) e.getPlayer();
         PhoneMenu menu = menus.get(p);
-        if (menu != null && menu.inv.equals(e.getInventory())) menus.get(p).close();
+        if (menu != null && menu.chatInput == null && menu.inv.equals(e.getInventory())) menus.get(p).onClose();
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onChat(AsyncPlayerChatEvent e) {
         Player p = e.getPlayer();
-        String msg = e.getMessage();
-        if (ARPhones.get().changingOwners.containsKey(p)) {
-            e.setCancelled(true);
-            changingOwner(p,msg);
-            return;
-        }
-        if (ARPhones.get().sendingMsg.containsKey(p)) {
-            e.setCancelled(true);
-            sendingMsg(p,msg);
-            return;
-        }
-        if (ARPhones.get().settingNote.containsKey(p)) {
-            e.setCancelled(true);
-            settingNote(p,msg);
-        }
-    }
-
-    private void changingOwner(Player p, String msg) {
-        if (msg.equalsIgnoreCase("cancel")) {
-            p.sendMessage("Cancelled...");
-            ARPhones.get().changingOwners.remove(p);
-            return;
-        }
-        Phone phone = ARPhones.get().changingOwners.get(p);
-        ARPhones.get().changingOwners.remove(p);
-        OfflinePlayer newOwner = Utils.getOfflinePlayer(msg);
-        phone.setOwner(newOwner.getUniqueId().toString());
-        p.sendMessage("Phone owner changed! New owner: "+newOwner.getName());
-    }
-    private void sendingMsg(Player p, String msg) {
-        if (msg.equalsIgnoreCase("cancel")) {
-            p.sendMessage("Cancelled...");
-            ARPhones.get().sendingMsg.remove(p);
-            return;
-        }
-        OfflinePlayer contact = ARPhones.get().sendingMsg.get(p);
-        ARPhones.get().sendingMsg.remove(p);
-        PhoneUtils.sendMsg(p,contact,msg);
-    }
-    private void settingNote(Player p, String msg) {
-        if (msg.equalsIgnoreCase("cancel")) {
-            p.sendMessage("Cancelled...");
-            ARPhones.get().settingNote.remove(p);
-            return;
-        }
-        List<Object> list = ARPhones.get().settingNote.get(p);
-        Contact contact = (Contact) list.get(0);
-        int note = (int) list.get(1);
-        ARPhones.get().sendingMsg.remove(p);
-        contact.setNote(note,msg);
-        p.sendMessage("Note "+(note+1)+" set to : "+msg);
+        PhoneMenu menu = ARPhones.get().openedMenus.get(p);
+        if (menu == null || menu.chatInput == null) return;
+        e.setCancelled(true);
+        if (!menu.onChatInput(e.getMessage())) return;
+        menu.chatInput = null;
+        if (menu.chatInputReopen)
+            ARPhones.get().getServer().getScheduler().runTask(ARPhones.get(), menu::onOpen);
     }
 
     @EventHandler

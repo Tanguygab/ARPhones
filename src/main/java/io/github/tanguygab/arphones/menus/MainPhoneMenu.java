@@ -1,6 +1,6 @@
 package io.github.tanguygab.arphones.menus;
 
-import io.github.tanguygab.arphones.ARPhones;
+import io.github.tanguygab.arphones.phone.PhonePage;
 import io.github.tanguygab.arphones.phone.sim.SIMCard;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.utils.MenuUtils;
@@ -12,7 +12,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 public class MainPhoneMenu extends PhoneMenu {
 
@@ -21,11 +20,10 @@ public class MainPhoneMenu extends PhoneMenu {
     }
 
     @Override
-    public void open() {
+    public void onOpen() {
 
-        inv.setItem(10, createMenuItem(Material.CREEPER_HEAD,lang.getContactsName(),lang.getContactsLore()));
-        inv.setItem(14,createMenuItem(Material.IRON_DOOR,lang.getLockName(),lang.getLockLore()));
-        inv.setItem(16,createMenuItem(Material.NAME_TAG,lang.getOwnerName(),lang.getOwnerLore(Bukkit.getServer().getOfflinePlayer(UUID.fromString(phone.getOwner())).getName())));
+        inv.setItem(11, createMenuItem(Material.CREEPER_HEAD,lang.getContactsName(),lang.getContactsLore()));
+        inv.setItem(15,createMenuItem(Material.IRON_DOOR,lang.getLockName(),lang.getLockLore()));
 
         inv.setItem(7,createMenuItem(Material.REDSTONE,lang.getBatteryName(),lang.getBatteryLore(phone.getBattery())));
 
@@ -49,7 +47,7 @@ public class MainPhoneMenu extends PhoneMenu {
     }
 
     private void loadBackground() {
-        inv.setItem(12,createMenuItem(phone.getBackgroundColorBlock(),lang.getBackgroundColorName(),lang.getBackgroundColorLore(phone.getBackgroundColor())));
+        inv.setItem(13,createMenuItem(phone.getBackgroundColorBlock(),lang.getBackgroundColorName(),lang.getBackgroundColorLore(phone.getBackgroundColor())));
         fillMenu();
     }
 
@@ -75,24 +73,15 @@ public class MainPhoneMenu extends PhoneMenu {
                     loadSIMItem();
                 }
             }
-            case 10 -> phone.openListMenu(p,true);
-            case 12 -> {
+            case 11 -> phone.open(p,PhonePage.CONTACTS);
+            case 13 -> {
                 phone.setBackgroundColor(click == ClickType.MIDDLE ? "gray" : MenuUtils.nextColor(phone.getBackgroundColor(),click.isLeftClick() ? 1 : -1));
                 loadBackground();
             }
-            case 14 -> phone.openPinMenu(p);
-            case 16 -> {
-                if (!p.getUniqueId().toString().equals(phone.getOwner())) {
-                    p.sendMessage("You have to be the owner of the phone to do that!");
-                    break;
-                }
-                p.closeInventory();
-                p.sendMessage("Send the name of the new owner of this phone:");
-                ARPhones.get().changingOwners.put(p,phone);
-            }
+            case 15 -> phone.open(p,PhonePage.LOCK_SCREEN_INFO);
             case 22 -> {
                 if (!Bukkit.getServer().getPluginManager().isPluginEnabled("KeyCard")) break;
-                phone.openKeyCards(p);
+                phone.open(p,PhonePage.KEYCARDS);
             }
             default -> {
                 boolean isRedstone = (item != null && item.getType() == Material.REDSTONE) || cursor.getType() == Material.REDSTONE;

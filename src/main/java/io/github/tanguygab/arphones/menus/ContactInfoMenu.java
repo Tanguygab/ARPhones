@@ -2,6 +2,7 @@ package io.github.tanguygab.arphones.menus;
 
 import io.github.tanguygab.arphones.ARPhones;
 import io.github.tanguygab.arphones.phone.Phone;
+import io.github.tanguygab.arphones.phone.PhonePage;
 import io.github.tanguygab.arphones.phone.sim.Contact;
 import io.github.tanguygab.arphones.utils.DiscordUtils;
 import io.github.tanguygab.arphones.utils.PhoneUtils;
@@ -19,15 +20,16 @@ import java.util.*;
 
 public class ContactInfoMenu extends PhoneMenu {
 
-    private final OfflinePlayer contact;
+    private final Contact contact;
 
-    public ContactInfoMenu(Player p, Phone phone, OfflinePlayer contact) {
+    public ContactInfoMenu(Player p, Phone phone, Contact contact) {
         super(p, phone, Utils.msgs().getContactInfoTitle(contact.getName()), 54);
         this.contact = contact;
+        chatInputReopen = true;
     }
 
     @Override
-    public void open() {
+    public void onOpen() {
         setBackButton(49);
 
         fillSlots(0,1,2,3,4,8,9,13,17,18,22,26,27,31,35,36,40,44,45,46,47,48,53);
@@ -35,17 +37,18 @@ public class ContactInfoMenu extends PhoneMenu {
 
         ItemStack head = createMenuItem(Material.PLAYER_HEAD, contact.getName(),null);
         SkullMeta meta = (SkullMeta) head.getItemMeta();
-        if (contact.getPlayerProfile().isComplete()) meta.setOwningPlayer(contact);
-        else contact.getPlayerProfile().update().thenRunAsync(()->{
-            meta.setOwningPlayer(contact);
+        OfflinePlayer playerContact = contact.get();
+        if (playerContact.getPlayerProfile().isComplete()) meta.setOwningPlayer(playerContact);
+        else playerContact.getPlayerProfile().update().thenRunAsync(()->{
+            meta.setOwningPlayer(playerContact);
             head.setItemMeta(meta);
             inv.setItem(11,head);
         });
         head.setItemMeta(meta);
         inv.setItem(11,head);
 
-        boolean isInCall = PhoneUtils.isInCall(contact);
-        boolean isWaitingForCall = ARPhones.get().isDiscordSRVEnabled() && DiscordUtils.isWaitingForCall(contact,p);
+        boolean isInCall = PhoneUtils.isInCall(contact.getUUID());
+        boolean isWaitingForCall = ARPhones.get().isDiscordSRVEnabled() && DiscordUtils.isWaitingForCall(contact.getUUID(),p.getUniqueId());
         ItemStack callItem;
         if (isWaitingForCall) callItem = createMenuItem(Material.LIME_WOOL,"Click to accept call!",null);
         else callItem = createMenuItem(isInCall ? Material.BARRIER : Material.NOTE_BLOCK,isInCall ? lang.getContactInfoIsInCall(contact.getName()) : lang.getContactInfoCall(contact.getName()),null);
@@ -58,7 +61,6 @@ public class ContactInfoMenu extends PhoneMenu {
     }
 
     private void loadNotes() {
-        Contact contact = phone.getSim().getContact(this.contact.getUniqueId());
         List<String> notes = contact.getNotes();
 
         List<Integer> slots = List.of(28,29,30,37,38,39);
@@ -75,7 +77,7 @@ public class ContactInfoMenu extends PhoneMenu {
 
     private void loadMessages(ItemStack contactHead) {
         String uuid1 = p.getUniqueId().toString();
-        String uuid2 = contact.getUniqueId().toString();
+        String uuid2 = contact.getUUID().toString();
         List<Map<String,String>> msgs = PhoneUtils.getHistory(uuid1,uuid2);
         List<Integer> msgsSlots = List.of(51,42,33,24,15,6);
 
@@ -103,31 +105,46 @@ public class ContactInfoMenu extends PhoneMenu {
         switch (slot) {
             case 28,29,30,37,38,39 -> {
                 int note = slot < 31 ? slot-28 : slot-34;
-                Contact contact1 = phone.getSim().getContact(contact.getUniqueId());
                 if (click == ClickType.DROP) {
                     if (item.getType() == Material.MAP) break;
-                    contact1.setNote(note,"");
+                    contact.setNote(note,"");
                     inv.setItem(slot,createMenuItem(Material.MAP,"Note "+(note+1),Arrays.asList("","Click to add a note")));
                     break;
                 }
-                p.closeInventory();
-                p.sendMessage("Write a note for "+contact.getName()+":");
-                ARPhones.get().settingNote.put(p,List.of(contact1,note));
+                onClose();
+                chatInput("Write a note for "+contact.getName()+":","changeNote"+note,true);
             }
-            case 49 -> phone.openListMenu(p,true);
-            case 19 -> PhoneUtils.call(p,contact);
+            case 49 -> phone.open(p, PhonePage.CONTACTS);
+            case 19 -> PhoneUtils.call(p,contact.get());
             case 21 -> {
-                p.closeInventory();
-                p.sendMessage("Write a message to send to "+contact.getName()+":");
-                ARPhones.get().sendingMsg.put(p,contact);
+                onClose();
+                chatInput("Write a message to send to "+contact.getName()+":","sendMessage",true);
             }
         }
         return true;
     }
 
     @Override
-    public void close() {
+    public boolean onChatInput(String msg) {
+        if (msg.equalsIgnoreCase("cancel")) {
+            p.sendMessage("Cancelled...");
+            return true;
+        }
+        if (chatInput.equals("sendMessage")) {
+            PhoneUtils.sendMsg(p, contact.get(), msg);
+            return true;
+        }
+        if (chatInput.startsWith("changeNote")) {
+            int note = Integer.parseInt(chatInput.substring(chatInput.length()-1));
+            contact.setNote(note,msg);
+            p.sendMessage("Note "+(note+1)+" set to : "+msg);
+        }
+        return true;
+    }
+
+    @Override
+    public void onClose() {
         phone.setContactPage(null);
-        super.close();
+        super.onClose();
     }
 }

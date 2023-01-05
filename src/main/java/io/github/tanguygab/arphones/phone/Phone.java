@@ -1,12 +1,15 @@
 package io.github.tanguygab.arphones.phone;
 
 import io.github.tanguygab.arphones.ARPhones;
+import io.github.tanguygab.arphones.menus.lockscreen.LockScreenInfoMenu;
+import io.github.tanguygab.arphones.menus.lockscreen.PinMenu;
+import io.github.tanguygab.arphones.phone.lock.LockSystem;
+import io.github.tanguygab.arphones.phone.sim.Contact;
 import io.github.tanguygab.arphones.phone.sim.SIMCard;
 import io.github.tanguygab.arphones.menus.*;
 import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -15,7 +18,7 @@ import java.util.*;
 public class Phone {
 
     private final UUID uuid;
-    private String pin;
+    private LockSystem lockSystem;
     private String owner;
     private SIMCard sim;
 
@@ -27,9 +30,9 @@ public class Phone {
     // keycard hook
     private final List<ItemStack> keycards;
 
-    public Phone(UUID uuid, String pin, SIMCard sim, int battery, String owner, String backgroundColor, PhonePage page, List<ItemStack> keycards) {
+    public Phone(UUID uuid, LockSystem lockSystem, SIMCard sim, int battery, String owner, String backgroundColor, PhonePage page, List<ItemStack> keycards) {
         this.uuid = uuid;
-        this.pin = pin;
+        this.lockSystem = lockSystem;
         this.sim = sim;
         this.battery = battery;
         this.owner = owner;
@@ -39,8 +42,7 @@ public class Phone {
         this.keycards = keycards;
     }
     public Phone(UUID uuid, Player p) {
-        this(uuid, "0000",null,100,p.getUniqueId().toString(),"gray", PhonePage.MAIN,new ArrayList<>());
-        openPinMenu(p);
+        this(uuid,new LockSystem(),null,100,p.getUniqueId().toString(),"gray", PhonePage.MAIN,new ArrayList<>());
     }
 
     private void set(String path, Object value) {
@@ -83,9 +85,6 @@ public class Phone {
         return mat == null ? Material.GRAY_STAINED_GLASS_PANE : mat;
     }
 
-    public PhonePage getPage() {
-        return page;
-    }
     public void setPage(PhonePage page) {
         this.page = page;
         set("page",page.toString());
@@ -95,12 +94,8 @@ public class Phone {
         set("contact-page",contact);
     }
 
-    public String getPin() {
-        return pin;
-    }
-    public void setPin(String pin) {
-        this.pin = pin;
-        set("pin",pin);
+    public LockSystem getLockSystem() {
+        return lockSystem;
     }
 
     public int getBattery() {
@@ -111,59 +106,6 @@ public class Phone {
         if (battery < 0) battery = 0;
         this.battery = battery;
         set("battery",battery);
-    }
-
-    public void openMenu(Player p, PhoneMenu menu, PhonePage page) {
-        ARPhones.get().openedMenus.put(p,menu);
-        setPage(page);
-        menu.open();
-    }
-
-    public void openMainMenu(Player p) {
-        openMenu(p,new MainPhoneMenu(p,this),PhonePage.MAIN);
-    }
-
-    public void openPinMenu(Player p) {
-        openMenu(p,new PinPhoneMenu(p,this),PhonePage.LOCK_SCREEN);
-    }
-
-    public void openListMenu(Player p, boolean isContacts) {
-        if (sim == null) {
-            p.sendMessage("You need a SIM card for this!");
-            return;
-        }
-        openMenu(p,new ListPhoneMenu(p,this,isContacts),isContacts ? PhonePage.CONTACTS : PhonePage.PLAYERS);
-    }
-
-    public void openContactInfoMenu(Player p, OfflinePlayer contact) {
-        if (contact == null) {
-            openMainMenu(p);
-            return;
-        }
-        setContactPage(contact.getUniqueId().toString());
-        openMenu(p,new ContactInfoMenu(p,this,contact),PhonePage.CONTACT_INFO);
-    }
-
-    public void openLastMenu(Player p) {
-        switch (page) {
-            case MAIN -> openMainMenu(p);
-            case LOCK_SCREEN -> openPinMenu(p);
-            case CONTACTS -> openListMenu(p,true);
-            case PLAYERS -> openListMenu(p,false);
-            case CONTACT_INFO -> {
-                if (contactPage == null) openListMenu(p, true);
-                else openContactInfoMenu(p, Bukkit.getServer().getOfflinePlayer(UUID.fromString(contactPage)));
-            }
-            case KEYCARDS -> openKeyCards(p);
-        }
-    }
-
-    public void openKeyCards(Player p) {
-        if (!Bukkit.getServer().getPluginManager().isPluginEnabled("KeyCard")) {
-            p.sendMessage("The KeyCard plugin isn't loaded!");
-            return;
-        }
-        openMenu(p,new KeyCardMenu(p,this),PhonePage.KEYCARDS);
     }
 
     public List<ItemStack> getKeycards() {
@@ -180,5 +122,47 @@ public class Phone {
         List<Object> list = (List<Object>) ARPhones.get().dataFile.getObject("phones."+uuid+".keycards",new ArrayList<>());
         list.remove(Utils.keyCardToString(card));
         set("keycards",list);
+    }
+
+
+    public void openLastMenu(Player p) {
+        open(p,page,contactPage == null ? null : getSim().getContact(UUID.fromString(contactPage)));
+    }
+    public void open(Player p, PhonePage page) {
+        open(p,page,null);
+    }
+    public void open(Player p, PhonePage page, Contact contact) {
+        PhoneMenu menu = switch (page) {
+            case MAIN -> new MainPhoneMenu(p,this);
+            case CONTACTS,PLAYERS -> {
+                if (sim == null) {
+                    p.sendMessage("You need a SIM card for this!");
+                    yield null;
+                }
+                yield new ListPhoneMenu(p,this,page == PhonePage.CONTACTS);
+            }
+            case CONTACT_INFO -> {
+                if (contact == null) {
+                    open(p,PhonePage.MAIN);
+                    yield null;
+                }
+                setContactPage(contact.getUUID().toString());
+                yield new ContactInfoMenu(p,this,contact);
+            }
+            case LOCK_SCREEN -> new PinMenu(p,this);
+            case LOCK_SCREEN_INFO -> new LockScreenInfoMenu(p,this);
+            case PIN -> null;
+            case KEYCARDS -> {
+                if (!Bukkit.getServer().getPluginManager().isPluginEnabled("KeyCard")) {
+                    p.sendMessage("The KeyCard plugin isn't loaded!");
+                    yield null;
+                }
+                yield new KeyCardMenu(p,this);
+            }
+        };
+        if (menu == null) return;
+        ARPhones.get().openedMenus.put(p,menu);
+        setPage(page);
+        menu.onOpen();
     }
 }

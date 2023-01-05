@@ -1,6 +1,7 @@
 package io.github.tanguygab.arphones.menus;
 
 import io.github.tanguygab.arphones.phone.Phone;
+import io.github.tanguygab.arphones.phone.PhonePage;
 import io.github.tanguygab.keycard.Utils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -16,7 +17,7 @@ public class KeyCardMenu extends PhoneMenu {
     }
 
     @Override
-    public void open() {
+    public void onOpen() {
         loadKeycards();
         setBackButton(22);
         fillMenu();
@@ -40,7 +41,7 @@ public class KeyCardMenu extends PhoneMenu {
     @Override
     public boolean onClick(ItemStack item, int slot, ClickType click) {
         if (slot == 22) {
-            phone.openMainMenu(p);
+            phone.open(p, PhonePage.MAIN);
             return true;
         }
         if (!Utils.isKeycard(item)) return true;

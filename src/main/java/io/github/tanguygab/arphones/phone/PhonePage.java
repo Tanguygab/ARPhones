@@ -6,10 +6,10 @@ public enum PhonePage {
     CONTACTS,
     PLAYERS,
     CONTACT_INFO,
-    KEYCARDS,
-    LOCK_SCREEN;
-
-    PhonePage() {}
+    LOCK_SCREEN,
+    LOCK_SCREEN_INFO,
+    PIN,
+    KEYCARDS;
 
     public static PhonePage pageFromStr(String str) {
         for (PhonePage page : values()) {

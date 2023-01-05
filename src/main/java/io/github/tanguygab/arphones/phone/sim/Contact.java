@@ -1,6 +1,8 @@
 package io.github.tanguygab.arphones.phone.sim;
 
 import io.github.tanguygab.arphones.ARPhones;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +29,12 @@ public class Contact {
 
     public UUID getUUID() {
         return uuid;
+    }
+    public OfflinePlayer get() {
+        return Bukkit.getServer().getOfflinePlayer(uuid);
+    }
+    public String getName() {
+        return get().getName();
     }
 
     public boolean isFavorite() {

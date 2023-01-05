@@ -21,6 +21,8 @@ public abstract class PhoneMenu {
     protected final Player p;
     public final Phone phone;
     public Inventory inv;
+    public String chatInput = null;
+    public boolean chatInputReopen = false;
     protected LanguageFile lang = Utils.msgs();
 
     public PhoneMenu(Player p, Phone phone, String title, int slots) {
@@ -34,12 +36,23 @@ public abstract class PhoneMenu {
         this.inv = Bukkit.getServer().createInventory(null,invtype,title);
     }
 
-    public abstract void open();
+    public abstract void onOpen();
 
     public abstract boolean onClick(ItemStack item, int slot, ClickType click);
 
-    public void close() {
+    public void onClose() {
         ARPhones.get().openedMenus.remove(p);
+        p.closeInventory();
+    }
+
+    public boolean onChatInput(String message) {
+        return true;
+    }
+    public void chatInput(String message, String inputType, boolean reopen) {
+        chatInput = inputType;
+        chatInputReopen = reopen;
+        p.sendMessage(message);
+        p.closeInventory();
     }
 
     public void setBackButton(int slot) {

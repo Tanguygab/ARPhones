@@ -41,7 +41,7 @@ public class PhoneUtils {
             sender.sendMessage(lang.getCantCallSelf());
             return;
         }
-        if (isInCall(receiver)) {
+        if (isInCall(receiver.getUniqueId())) {
             sender.sendMessage(lang.isInCall(receiver.getName()));
             return;
         }
@@ -65,9 +65,9 @@ public class PhoneUtils {
         return ARPhones.get().dataFile.getStringList("notifications-off", new ArrayList<>()).contains(receiver.getUniqueId().toString());
     }
 
-    public static boolean isInCall(OfflinePlayer called) {
+    public static boolean isInCall(UUID called) {
         if (!ARPhones.get().isDiscordSRVEnabled()) return false;
-        String id = DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(called.getUniqueId());
+        String id = DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(called);
         Map<String,List<String>> channels = ARPhones.get().dataFile.getConfigurationSection("voice-channels");
         for (List<String> list : channels.values()) {
             if (list.contains(id))

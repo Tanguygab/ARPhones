@@ -12,9 +12,12 @@ import io.github.tanguygab.arphones.listener.BukkitListener;
 import io.github.tanguygab.arphones.listener.DiscordListener;
 import io.github.tanguygab.arphones.listener.KeyCardListener;
 import io.github.tanguygab.arphones.menus.PhoneMenu;
+import io.github.tanguygab.arphones.phone.lock.LockMode;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.phone.PhoneLook;
 import io.github.tanguygab.arphones.phone.PhonePage;
+import io.github.tanguygab.arphones.phone.lock.LockSystem;
+import io.github.tanguygab.arphones.phone.lock.UnlockMode;
 import io.github.tanguygab.arphones.phone.sim.Contact;
 import io.github.tanguygab.arphones.phone.sim.SIMCard;
 import io.github.tanguygab.arphones.utils.DiscordUtils;
@@ -52,10 +55,6 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
 
     public Map<String, Phone> phones = new HashMap<>();
     public Map<String, SIMCard> sims = new HashMap<>();
-
-    public Map<Player, Phone> changingOwners = new HashMap<>();
-    public Map<Player, List<Object>> settingNote = new HashMap<>();
-    public Map<Player, OfflinePlayer> sendingMsg = new HashMap<>();
     public Map<Player, PhoneMenu> openedMenus = new HashMap<>();
 
     public static ARPhones get() {
@@ -111,7 +110,18 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
             for (String el : phonesMap.keySet()) {
                 Map<String,Object> map = phonesMap.get(el);
                 UUID uuid = UUID.fromString(el);
-                String pin = map.getOrDefault("pin","0000")+"";
+
+                Map<String,Object> lockMap = (Map<String,Object>) map.get("lock");
+                LockSystem lockSystem;
+                if (lockMap != null) {
+                    boolean isLocked = (boolean) lockMap.getOrDefault("is-locked", false);
+                    LockMode lockMode = LockMode.get(lockMap.getOrDefault("lock-mode", "NONE") + "");
+                    UnlockMode unlockMode = UnlockMode.get(lockMap.getOrDefault("unlock-mode", "ALWAYS_LOCKED") + "");
+                    String lockKey = lockMap.getOrDefault("key", "") + "";
+                    boolean faceRecognition = (boolean) lockMap.getOrDefault("face-recognition", false);
+                    lockSystem = new LockSystem(isLocked,lockMode,unlockMode,lockKey,faceRecognition);
+                } else lockSystem = new LockSystem();
+
                 String sim = map.get("sim")+"";
 
                 int battery = (int) map.getOrDefault("battery",100);
@@ -125,7 +135,7 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
                     list.forEach(card->keycards.add(Utils.keyCardFromString(card)));
                 }
 
-                Phone phone = new Phone(uuid,pin,sims.get(sim),battery,owner,backgroundColor,PhonePage.pageFromStr(page),keycards);
+                Phone phone = new Phone(uuid,lockSystem,sims.get(sim),battery,owner,backgroundColor,PhonePage.pageFromStr(page),keycards);
                 ARPhones.get().phones.put(el,phone);
                 if (map.containsKey("page-contact"))
                     phone.setContactPage(map.get("page-contact")+"");

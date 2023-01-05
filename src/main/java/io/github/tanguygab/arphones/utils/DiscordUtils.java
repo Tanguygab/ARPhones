@@ -22,6 +22,7 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class DiscordUtils {
 
@@ -35,9 +36,9 @@ public class DiscordUtils {
         user.openPrivateChannel().queue(c -> c.sendMessage(msg).queue());
     }
 
-    public static boolean isWaitingForCall(OfflinePlayer caller, OfflinePlayer called) {
-        if (!waitingForCall.containsKey(caller.getUniqueId().toString())) return false;
-        return waitingForCall.get(caller.getUniqueId().toString()).equals(called.getUniqueId().toString());
+    public static boolean isWaitingForCall(UUID caller, UUID called) {
+        if (!waitingForCall.containsKey(caller.toString())) return false;
+        return waitingForCall.get(caller.toString()).equals(called.toString());
     }
 
     private static User getDiscord(OfflinePlayer player) {

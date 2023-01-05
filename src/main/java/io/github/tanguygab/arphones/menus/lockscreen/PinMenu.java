@@ -1,7 +1,10 @@
-package io.github.tanguygab.arphones.menus;
+package io.github.tanguygab.arphones.menus.lockscreen;
 
 import io.github.tanguygab.arphones.ARPhones;
+import io.github.tanguygab.arphones.menus.PhoneMenu;
+import io.github.tanguygab.arphones.phone.lock.LockMode;
 import io.github.tanguygab.arphones.phone.Phone;
+import io.github.tanguygab.arphones.phone.PhonePage;
 import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -17,15 +20,15 @@ import org.bukkit.profile.PlayerProfile;
 import java.net.URL;
 import java.util.UUID;
 
-public class PinPhoneMenu extends PhoneMenu {
+public class PinMenu extends PhoneMenu {
 
-    public PinPhoneMenu(Player p, Phone phone) {
+    public PinMenu(Player p, Phone phone) {
         super(p, phone, Utils.msgs().getChangePinMenuTitle(), InventoryType.HOPPER);
     }
 
     @Override
-    public void open() {
-        String pin = phone.getPin();
+    public void onOpen() {
+        String pin = phone.getLockSystem().getKey();
 
         char pinChar1 = pin.charAt(0);
         ItemStack pin1 = createMenuItem(Material.PLAYER_HEAD, pinChar1+"",lang.getPinLore());
@@ -56,7 +59,7 @@ public class PinPhoneMenu extends PhoneMenu {
             case 0,1,3,4 -> {
                 ItemMeta meta = item.getItemMeta();
                 int i = slot > 2 ? slot-1 : slot;
-                char[] chars = phone.getPin().toCharArray();
+                char[] chars = phone.getLockSystem().getKey().toCharArray();
                 int newPin = Integer.parseInt(chars[i]+"");
 
                 if (click.isLeftClick()) newPin++;
@@ -68,18 +71,18 @@ public class PinPhoneMenu extends PhoneMenu {
                 item.setItemMeta(meta);
 
                 chars[i] = (newPin+"").charAt(0);
-                phone.setPin(""+chars[0]+chars[1]+chars[2]+chars[3]);
+                phone.getLockSystem().setKey(""+chars[0]+chars[1]+chars[2]+chars[3]);
             }
         }
         return true;
     }
 
     @Override
-    public void close() {
-        super.close();
+    public void onClose() {
+        super.onClose();
         p.sendMessage("Pin changed!");
         Phone phone = Utils.getPhone(p.getInventory().getItemInMainHand(),p);
-        if (phone != null) Bukkit.getServer().getScheduler().runTaskLater(ARPhones.get(),()->phone.openMainMenu(p),1);
+        if (phone != null) Bukkit.getServer().getScheduler().runTaskLater(ARPhones.get(),()->phone.open(p,PhonePage.MAIN),1);
     }
 
     public static void setPinHead(ItemStack item, char num) {

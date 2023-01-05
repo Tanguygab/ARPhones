@@ -1,5 +1,6 @@
 package io.github.tanguygab.arphones.menus;
 
+import io.github.tanguygab.arphones.phone.PhonePage;
 import io.github.tanguygab.arphones.phone.sim.Contact;
 import io.github.tanguygab.arphones.phone.sim.SIMCard;
 import io.github.tanguygab.arphones.phone.Phone;
@@ -29,7 +30,7 @@ public class ListPhoneMenu extends PhoneMenu {
     }
 
     @Override
-    public void open() {
+    public void onOpen() {
         fillSlots(0,1,2,3,4,5,6,7,8,9,17,18,26,27,35,36,44,45,46,47,49,50,51,52,53);
 
         ItemStack add = isContacts ? createMenuItem(Material.LIME_WOOL, lang.getListAdd(), null) : getFiller();
@@ -70,27 +71,26 @@ public class ListPhoneMenu extends PhoneMenu {
 
     private void onContactsClick(ItemStack item, int slot, ClickType click) {
         if (slot == 48) {
-            phone.openListMenu(p,false);
+            phone.open(p, PhonePage.PLAYERS);
             return;
         } if (slot == 50) {
-            phone.openMainMenu(p);
+            phone.open(p,PhonePage.MAIN);
             return;
         }
         if (item == null || item.getType() != Material.PLAYER_HEAD) return;
-        OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(UUID.fromString(item.getItemMeta().getPersistentDataContainer().get(Utils.contactName,PersistentDataType.STRING)));
+        Contact contact = sim.getContact(UUID.fromString(item.getItemMeta().getPersistentDataContainer().get(Utils.contactName,PersistentDataType.STRING)));
 
         switch (click) {
-            case LEFT, SHIFT_LEFT -> phone.openContactInfoMenu(p,player);
+            case LEFT, SHIFT_LEFT -> phone.open(p,PhonePage.CONTACT_INFO,contact);
             case RIGHT, SHIFT_RIGHT -> {
-                Contact contact = sim.getContact(player.getUniqueId());
                 boolean newStatus = !contact.isFavorite();
                 contact.setFavorite(newStatus);
-                p.sendMessage(player.getName() + " was "+(newStatus ? "added" : "removed")+" from your favorites");
+                p.sendMessage(contact.getName() + " was "+(newStatus ? "added" : "removed")+" from your favorites");
                 loadPlayers();
             }
             case DROP -> {
-                sim.removeContact(player.getUniqueId());
-                p.sendMessage(player.getName() + " was removed from your contacts");
+                sim.removeContact(contact.getUUID());
+                p.sendMessage(contact.getName() + " was removed from your contacts");
                 loadPlayers();
             }
         }
@@ -98,18 +98,18 @@ public class ListPhoneMenu extends PhoneMenu {
 
     private void onPlayersClick(ItemStack item, int slot, ClickType click) {
         if (slot == 49) {
-            phone.openListMenu(p,true);
+            phone.open(p,PhonePage.CONTACTS);
             return;
         }
         if (item == null || item.getType() != Material.PLAYER_HEAD) return;
-        OfflinePlayer player = Bukkit.getServer().getOfflinePlayer(UUID.fromString(item.getItemMeta().getPersistentDataContainer().get(Utils.contactName,PersistentDataType.STRING)));
+        Contact contact = sim.getContact(UUID.fromString(item.getItemMeta().getPersistentDataContainer().get(Utils.contactName,PersistentDataType.STRING)));
 
         if (click.isRightClick()) {
-            sim.addContact(player.getUniqueId());
-            p.sendMessage(player.getName() + " was added to your contacts");
+            sim.addContact(contact.getUUID());
+            p.sendMessage(contact.getName() + " was added to your contacts");
             loadPlayers();
         }
-        else if (click.isLeftClick()) phone.openContactInfoMenu(p,player);
+        else if (click.isLeftClick()) phone.open(p,PhonePage.CONTACT_INFO,contact);
     }
 
     @Override
