@@ -173,7 +173,6 @@ public class Phone {
                 }
             }
             return;
-
         }
 
         PhoneMenu menu = switch (page) {

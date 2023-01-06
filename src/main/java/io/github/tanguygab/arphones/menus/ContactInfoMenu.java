@@ -111,15 +111,11 @@ public class ContactInfoMenu extends PhoneMenu {
                     inv.setItem(slot,createMenuItem(Material.MAP,"Note "+(note+1),Arrays.asList("","Click to add a note")));
                     break;
                 }
-                onClose();
                 chatInput("Write a note for "+contact.getName()+":","changeNote"+note,true);
             }
             case 49 -> phone.open(p, PhonePage.CONTACTS);
             case 19 -> PhoneUtils.call(p,contact.get());
-            case 21 -> {
-                onClose();
-                chatInput("Write a message to send to "+contact.getName()+":","sendMessage",true);
-            }
+            case 21 -> chatInput("Write a message to send to "+contact.getName()+":","sendMessage",true);
         }
         return true;
     }

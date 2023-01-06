@@ -45,13 +45,14 @@ public class PinMenu extends PinEditMenu {
 
     @Override
     public void onClose() {
+        ARPhones.get().openedMenus.remove(p);
+        p.closeInventory();
+
         if (!pin.equals(phone.getLockSystem().getKey())) {
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_RED+"Invalid PIN!"));
             return;
         }
 
-        ARPhones.get().openedMenus.remove(p);
-        p.closeInventory();
 
         p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN+"Valid PIN!"));
         phone.getLockSystem().setLocked(false);
