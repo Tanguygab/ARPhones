@@ -6,9 +6,8 @@ public enum PhonePage {
     CONTACTS,
     PLAYERS,
     CONTACT_INFO,
-    LOCK_SCREEN,
     LOCK_SCREEN_INFO,
-    PIN,
+    PIN_EDIT,
     KEYCARDS;
 
     public static PhonePage pageFromStr(String str) {

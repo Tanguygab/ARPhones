@@ -81,7 +81,7 @@ public abstract class PhoneMenu {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Utils.colors("&f"+name));
         if (lore != null) {
-            lore.forEach(e -> lore.set(lore.indexOf(e), ChatColor.GRAY + e));
+            lore.forEach(e -> lore.set(lore.indexOf(e), ChatColor.GRAY + Utils.colors(e)));
             meta.setLore(lore);
         }
         item.setItemMeta(meta);

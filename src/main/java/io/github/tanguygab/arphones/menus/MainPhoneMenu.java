@@ -23,7 +23,8 @@ public class MainPhoneMenu extends PhoneMenu {
     public void onOpen() {
 
         inv.setItem(11, createMenuItem(Material.CREEPER_HEAD,lang.getContactsName(),lang.getContactsLore()));
-        inv.setItem(15,createMenuItem(Material.IRON_DOOR,lang.getLockName(),lang.getLockLore()));
+        boolean isOwner = phone.isOwner(p);
+        inv.setItem(15,createMenuItem(Material.IRON_DOOR,isOwner ? lang.getLockName() : "Lock your Phone",isOwner ? lang.getLockLore() : null));
 
         inv.setItem(7,createMenuItem(Material.REDSTONE,lang.getBatteryName(),lang.getBatteryLore(phone.getBattery())));
 
@@ -43,7 +44,7 @@ public class MainPhoneMenu extends PhoneMenu {
                 : createMenuItem(Material.BOOK,"SIM card", Arrays.asList("","Click to take out"));
         inv.setItem(8,sim);
 
-        //inv.setItem(8,createMenuItem(Material.REDSTONE_TORCH,lang.getConnectionName(),lang.getConnectionLore(5)));
+        //inv.setItem(6,createMenuItem(Material.REDSTONE_TORCH,lang.getConnectionName(),lang.getConnectionLore(5)));
     }
 
     private void loadBackground() {
@@ -78,7 +79,14 @@ public class MainPhoneMenu extends PhoneMenu {
                 phone.setBackgroundColor(click == ClickType.MIDDLE ? "gray" : MenuUtils.nextColor(phone.getBackgroundColor(),click.isLeftClick() ? 1 : -1));
                 loadBackground();
             }
-            case 15 -> phone.open(p,PhonePage.LOCK_SCREEN_INFO);
+            case 15 -> {
+                if (!phone.isOwner(p)) {
+                    phone.getLockSystem().setLocked(true);
+                    onClose();
+                    break;
+                }
+                phone.open(p,PhonePage.LOCK_SCREEN_INFO);
+            }
             case 22 -> {
                 if (!Bukkit.getServer().getPluginManager().isPluginEnabled("KeyCard")) break;
                 phone.open(p,PhonePage.KEYCARDS);

@@ -119,8 +119,8 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
                     UnlockMode unlockMode = UnlockMode.get(lockMap.getOrDefault("unlock-mode", "ALWAYS_LOCKED") + "");
                     String lockKey = lockMap.getOrDefault("key", "") + "";
                     boolean faceRecognition = (boolean) lockMap.getOrDefault("face-recognition", false);
-                    lockSystem = new LockSystem(isLocked,lockMode,unlockMode,lockKey,faceRecognition);
-                } else lockSystem = new LockSystem();
+                    lockSystem = new LockSystem(uuid,isLocked,lockMode,unlockMode,lockKey,faceRecognition);
+                } else lockSystem = new LockSystem(uuid);
 
                 String sim = map.get("sim")+"";
 

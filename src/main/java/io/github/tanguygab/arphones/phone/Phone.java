@@ -2,23 +2,30 @@ package io.github.tanguygab.arphones.phone;
 
 import io.github.tanguygab.arphones.ARPhones;
 import io.github.tanguygab.arphones.menus.lockscreen.LockScreenInfoMenu;
+import io.github.tanguygab.arphones.menus.lockscreen.PinEditMenu;
 import io.github.tanguygab.arphones.menus.lockscreen.PinMenu;
 import io.github.tanguygab.arphones.phone.lock.LockSystem;
 import io.github.tanguygab.arphones.phone.sim.Contact;
 import io.github.tanguygab.arphones.phone.sim.SIMCard;
 import io.github.tanguygab.arphones.menus.*;
 import io.github.tanguygab.arphones.utils.Utils;
+import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
 
 import java.util.*;
 
 public class Phone {
 
     private final UUID uuid;
-    private LockSystem lockSystem;
+    private final LockSystem lockSystem;
     private String owner;
     private SIMCard sim;
 
@@ -27,7 +34,6 @@ public class Phone {
     private PhonePage page;
     private String contactPage = null;
 
-    // keycard hook
     private final List<ItemStack> keycards;
 
     public Phone(UUID uuid, LockSystem lockSystem, SIMCard sim, int battery, String owner, String backgroundColor, PhonePage page, List<ItemStack> keycards) {
@@ -42,7 +48,7 @@ public class Phone {
         this.keycards = keycards;
     }
     public Phone(UUID uuid, Player p) {
-        this(uuid,new LockSystem(),null,100,p.getUniqueId().toString(),"gray", PhonePage.MAIN,new ArrayList<>());
+        this(uuid,new LockSystem(uuid),null,100,p.getUniqueId().toString(),"gray", PhonePage.MAIN,new ArrayList<>());
     }
 
     private void set(String path, Object value) {
@@ -54,6 +60,16 @@ public class Phone {
     }
     public String getOwner() {
         return owner;
+    }
+    public boolean isOwner(Player p) {
+        ItemStack head = p.getEquipment().getHelmet();
+        if (head != null && head.getType() == Material.PLAYER_HEAD) {
+            PlayerProfile headProfile = ((SkullMeta)head.getItemMeta()).getOwnerProfile();
+            return headProfile != null
+                    && headProfile.getName() != null
+                    && headProfile.getName().equals(Bukkit.getServer().getOfflinePlayer(UUID.fromString(owner)).getName());
+        }
+        return p.getUniqueId().toString().equals(owner);
     }
     public void setOwner(String owner) {
         this.owner = owner;
@@ -132,6 +148,34 @@ public class Phone {
         open(p,page,null);
     }
     public void open(Player p, PhonePage page, Contact contact) {
+        if (lockSystem.isLocked() && lockSystem.hasFaceRecognition() && isOwner(p)) {
+            lockSystem.setLocked(false);
+            p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN+"Face Recognized"));
+        }
+        if (lockSystem.isLocked() && lockSystem.getKey() != null) {
+            switch (lockSystem.getLockMode()) {
+                case PASSWORD -> new AnvilGUI.Builder()
+                        .plugin(ARPhones.get())
+                        .title("Enter your password")
+                        .text("Your Password")
+                        .itemLeft(new ItemStack(Material.PAPER))
+                        .onComplete(completion -> List.of(completion.getText().equals(lockSystem.getKey())
+                                ? AnvilGUI.ResponseAction.run(() -> {
+                                    lockSystem.setLocked(false);
+                                    open(p, page, contact);
+                                })
+                                : AnvilGUI.ResponseAction.replaceInputText("Try again")))
+                        .open(p);
+                case PIN -> {
+                    PhoneMenu menu = new PinMenu(p,this);
+                    ARPhones.get().openedMenus.put(p,menu);
+                    menu.onOpen();
+                }
+            }
+            return;
+
+        }
+
         PhoneMenu menu = switch (page) {
             case MAIN -> new MainPhoneMenu(p,this);
             case CONTACTS,PLAYERS -> {
@@ -149,9 +193,8 @@ public class Phone {
                 setContactPage(contact.getUUID().toString());
                 yield new ContactInfoMenu(p,this,contact);
             }
-            case LOCK_SCREEN -> new PinMenu(p,this);
             case LOCK_SCREEN_INFO -> new LockScreenInfoMenu(p,this);
-            case PIN -> null;
+            case PIN_EDIT -> new PinEditMenu(p,this);
             case KEYCARDS -> {
                 if (!Bukkit.getServer().getPluginManager().isPluginEnabled("KeyCard")) {
                     p.sendMessage("The KeyCard plugin isn't loaded!");
@@ -165,4 +208,5 @@ public class Phone {
         setPage(page);
         menu.onOpen();
     }
+
 }

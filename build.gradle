@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
 group = 'io.github.tanguygab'
@@ -23,10 +24,20 @@ repositories {
         name = 'Scarsz-Nexus'
         url = 'https://nexus.scarsz.me/content/groups/public/'
     }
+    maven {
+        name = 'codemc-snapshots'
+        url = 'https://repo.codemc.io/repository/maven-snapshots/'
+    }
 }
 
 dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT'
     compileOnly 'com.discordsrv:discordsrv:1.26.0'
+    implementation 'net.wesjd:anvilgui:1.6.3-SNAPSHOT'
     compileOnly files('../../dependencies/KeyCard-1.0.jar')
+}
+
+shadowJar {
+    archiveClassifier.set('')
+    relocate 'net.wesjd', 'io.github.tanguygab.net.wesjd'
 }
