@@ -1,7 +1,6 @@
 package io.github.tanguygab.arphones.phone.lock;
 
 import io.github.tanguygab.arphones.ARPhones;
-import io.github.tanguygab.arphones.phone.Phone;
 
 import java.util.UUID;
 
@@ -44,6 +43,7 @@ public class LockSystem {
         return lockMode;
     }
     public void setLockMode(LockMode mode) {
+        if (lockMode == mode) return;
         lockMode = mode;
         set("lock-mode",mode+"");
         setKey(mode.getDefaultKey());
