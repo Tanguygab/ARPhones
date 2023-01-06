@@ -21,8 +21,10 @@ import java.util.UUID;
 
 public class PinEditMenu extends PhoneMenu {
 
+    protected String pin;
     public PinEditMenu(Player p, Phone phone) {
         super(p, phone, Utils.msgs().getChangePinMenuTitle(), InventoryType.HOPPER);
+        pin = phone.getLockSystem().getKey();
     }
 
     @Override
@@ -41,7 +43,7 @@ public class PinEditMenu extends PhoneMenu {
             case 0,1,3,4 -> {
                 ItemMeta meta = item.getItemMeta();
                 int i = slot > 2 ? slot-1 : slot;
-                char[] chars = phone.getLockSystem().getKey().toCharArray();
+                char[] chars = pin.toCharArray();
                 int newPin = Integer.parseInt(chars[i]+"");
 
                 if (click.isLeftClick()) newPin++;
@@ -53,7 +55,7 @@ public class PinEditMenu extends PhoneMenu {
                 item.setItemMeta(meta);
 
                 chars[i] = (newPin+"").charAt(0);
-                phone.getLockSystem().setKey(""+chars[0]+chars[1]+chars[2]+chars[3]);
+                pin = ""+chars[0]+chars[1]+chars[2]+chars[3];
             }
         }
         return true;
@@ -63,11 +65,11 @@ public class PinEditMenu extends PhoneMenu {
     public void onClose() {
         super.onClose();
         p.sendMessage("Pin changed!");
+        phone.getLockSystem().setKey(pin);
         Bukkit.getServer().getScheduler().runTask(ARPhones.get(),()->phone.open(p,PhonePage.MAIN));
     }
 
     private void createPinItem(int charNumber, int slot) {
-        String pin = phone.getLockSystem().getKey();
         char pinChar = pin.charAt(charNumber);
         ItemStack item = createMenuItem(Material.PLAYER_HEAD, pinChar+"",lang.getPinLore());
         inv.setItem(slot,item);

@@ -14,10 +14,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class PinMenu extends PinEditMenu {
 
-    private String pin;
     public PinMenu(Player p, Phone phone) {
         super(p, phone);
-        pin = phone.getLockSystem().getKey();
+        pin = "0000";
     }
 
     @Override
@@ -48,7 +47,6 @@ public class PinMenu extends PinEditMenu {
     public void onClose() {
         if (!pin.equals(phone.getLockSystem().getKey())) {
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_RED+"Invalid PIN!"));
-            p.openInventory(inv);
             return;
         }
 
