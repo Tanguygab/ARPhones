@@ -192,7 +192,7 @@ public class Phone {
                 setContactPage(contact.getUUID().toString());
                 yield new ContactInfoMenu(p,this,contact);
             }
-            case LOCK_SCREEN_INFO -> new LockScreenInfoMenu(p,this);
+            case LOCK_SCREEN_INFO -> isOwner(p) ? new LockScreenInfoMenu(p,this) : new MainPhoneMenu(p,this);
             case PIN_EDIT -> new PinEditMenu(p,this);
             case KEYCARDS -> {
                 if (!Bukkit.getServer().getPluginManager().isPluginEnabled("KeyCard")) {
