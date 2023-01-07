@@ -3,6 +3,7 @@ package io.github.tanguygab.arphones.menus;
 import io.github.tanguygab.arphones.ARPhones;
 import io.github.tanguygab.arphones.config.LanguageFile;
 import io.github.tanguygab.arphones.phone.Phone;
+import io.github.tanguygab.arphones.phone.PhonePage;
 import io.github.tanguygab.arphones.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -86,6 +87,10 @@ public abstract class PhoneMenu {
         }
         item.setItemMeta(meta);
         return item;
+    }
+
+    public void runSync(Runnable run) {
+        Bukkit.getServer().getScheduler().runTask(ARPhones.get(),run);
     }
 
 }

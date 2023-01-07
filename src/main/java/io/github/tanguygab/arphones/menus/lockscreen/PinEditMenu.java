@@ -66,7 +66,7 @@ public class PinEditMenu extends PhoneMenu {
         super.onClose();
         p.sendMessage("Pin changed!");
         phone.getLockSystem().setKey(pin);
-        Bukkit.getServer().getScheduler().runTask(ARPhones.get(),()->phone.open(p,PhonePage.MAIN));
+        runSync(()->phone.open(p, PhonePage.MAIN));
     }
 
     private void createPinItem(int charNumber, int slot) {

@@ -114,7 +114,7 @@ public class LockScreenInfoMenu extends PhoneMenu {
                 }
             }
             case 14 -> setFaceRecognition(!system.hasFaceRecognition());
-            case 16 -> chatInput("Send the name of the new owner of this phone:","setOwner",true);
+            case 16 -> chatInput("Send the name of the new owner of this phone:","setOwner",false);
             case 22 -> phone.open(p,PhonePage.MAIN);
             case 26 -> {
                 system.setLocked(true);
@@ -149,6 +149,7 @@ public class LockScreenInfoMenu extends PhoneMenu {
         }
         phone.setOwner(newOwner.getUniqueId().toString());
         p.sendMessage("Phone owner changed! New owner: "+newOwner.getName());
+        runSync(()->phone.open(p, PhonePage.MAIN));
         return true;
     }
 }

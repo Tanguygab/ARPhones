@@ -43,14 +43,11 @@ public class BukkitListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e) {
         Player p = (Player) e.getWhoClicked();
-
         if (ARPhones.get().openedMenus.containsKey(p)) {
             e.setCancelled(ARPhones.get().openedMenus.get(p).onClick(e.getCurrentItem(), e.getRawSlot(), e.getClick()));
             return;
         }
-
         if (e.isCancelled()) return;
-
 
         ItemStack item = switch (e.getAction()) {
             case MOVE_TO_OTHER_INVENTORY -> e.getCurrentItem();
@@ -86,7 +83,7 @@ public class BukkitListener implements Listener {
         PhoneMenu menu = menus.get(p);
         if (menu == null || menu.chatInput != null) return;
         if (menu.inv.equals(e.getInventory())) menus.get(p).onClose();
-        Bukkit.getServer().getScheduler().runTask(ARPhones.get(),()->{
+        menu.runSync(()->{
             LockSystem lock = menu.phone.getLockSystem();
             if (!menus.containsKey(p) && lock.getUnlockMode() == UnlockMode.ALWAYS_LOCKED)
                 lock.setLocked(true);
@@ -102,7 +99,7 @@ public class BukkitListener implements Listener {
         if (!menu.onChatInput(e.getMessage())) return;
         menu.chatInput = null;
         if (menu.chatInputReopen)
-            ARPhones.get().getServer().getScheduler().runTask(ARPhones.get(), menu::onOpen);
+            menu.runSync(menu::onOpen);
     }
 
     @EventHandler

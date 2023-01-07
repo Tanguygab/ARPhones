@@ -53,10 +53,9 @@ public class PinMenu extends PinEditMenu {
             return;
         }
 
-
         p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN+"Valid PIN!"));
         phone.getLockSystem().setLocked(false);
-        Bukkit.getServer().getScheduler().runTask(ARPhones.get(),()->phone.open(p,PhonePage.MAIN));
+        runSync(()->phone.open(p, PhonePage.MAIN));
     }
 
 }
