@@ -26,7 +26,7 @@ public class MainPhoneMenu extends PhoneMenu {
         inv.setItem(10, createMenuItem(Material.CREEPER_HEAD,lang.getContactsName(),lang.getContactsLore()));
         boolean isOwner = phone.isOwner(p);
         inv.setItem(14,createMenuItem(Material.IRON_DOOR,isOwner ? lang.getLockName() : "Lock your Phone",isOwner ? lang.getLockLore() : null));
-        inv.setItem(16,Utils.createHeadItem("0ebe7e5215169a699acc6cefa7b73fdb108db87bb6dae2849fbe24714b27","Videogames",Arrays.asList("","Play various videogames","from Hangman to Snake!")));
+        inv.setItem(16,Utils.createHeadItem("b0f10e85418e334f82673eb4940b208ecaee0c95c287685e9eaf24751a315bfa","Videogames",Arrays.asList("","Play various videogames","from Hangman to Snake!")));
 
         inv.setItem(7,createMenuItem(Material.REDSTONE,lang.getBatteryName(),lang.getBatteryLore(phone.getBattery())));
 
@@ -89,7 +89,7 @@ public class MainPhoneMenu extends PhoneMenu {
                 }
                 phone.open(p,PhonePage.LOCK_SCREEN_INFO);
             }
-            case 16 -> phone.open(p,PhonePage.VIDEOGAME,PhoneGame.HANGMAN);
+            case 16 -> phone.open(p,PhonePage.VIDEOGAME);
             case 22 -> {
                 if (!Bukkit.getServer().getPluginManager().isPluginEnabled("KeyCard")) break;
                 phone.open(p,PhonePage.KEYCARDS);

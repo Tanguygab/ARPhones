@@ -2,6 +2,7 @@ package io.github.tanguygab.arphones.phone;
 
 import io.github.tanguygab.arphones.ARPhones;
 import io.github.tanguygab.arphones.menus.games.HangmanMenu;
+import io.github.tanguygab.arphones.menus.games.VideoGameMenu;
 import io.github.tanguygab.arphones.menus.lockscreen.LockScreenInfoMenu;
 import io.github.tanguygab.arphones.menus.lockscreen.PinEditMenu;
 import io.github.tanguygab.arphones.menus.lockscreen.PinMenu;
@@ -203,11 +204,16 @@ public class Phone {
                 yield new KeyCardMenu(p,this);
             }
             case VIDEOGAME -> {
-                if (!(arg instanceof PhoneGame)) {
-                    open(p,PhonePage.MAIN);
-                    yield null;
+                if (!(arg instanceof PhoneGame game)) {
+                    yield new VideoGameMenu(p,this);
                 }
-                yield new HangmanMenu(p,this);
+                yield switch (game) {
+                    case HANGMAN -> new HangmanMenu(p,this);
+                    case SNAKE -> null;
+                    case TIC_TAC_TOE -> null;
+                    case ROCK_PAPER_SCISSORS -> null;
+                    case CHESS -> null;
+                };
             }
         };
         if (menu == null) return;
