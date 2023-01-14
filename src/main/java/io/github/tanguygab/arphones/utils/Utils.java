@@ -1,10 +1,10 @@
 package io.github.tanguygab.arphones.utils;
 
 import io.github.tanguygab.arphones.ARPhones;
+import io.github.tanguygab.arphones.menus.PhoneMenu;
 import io.github.tanguygab.arphones.phone.sim.SIMCard;
 import io.github.tanguygab.arphones.config.LanguageFile;
 import io.github.tanguygab.arphones.phone.PhoneLook;
-import io.github.tanguygab.arphones.config.ConfigurationFile;
 import io.github.tanguygab.arphones.phone.Phone;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -16,9 +16,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.profile.PlayerProfile;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,8 @@ public class Utils {
     public static NamespacedKey phoneKey = new NamespacedKey(ARPhones.get(),"phone");
     public static NamespacedKey contactName = new NamespacedKey(ARPhones.get(),"contact-name");
     public static NamespacedKey SIMKey = new NamespacedKey(ARPhones.get(),"sim");
+
+    public static Map<String,PlayerProfile> playerProfiles = new HashMap<>();
 
     public static boolean isOnline(OfflinePlayer player) {
         return player != null && player.isOnline() && player.getPlayer() != null;
@@ -136,4 +141,24 @@ public class Utils {
         item.setItemMeta(meta);
         return item;
     }
+
+    public static ItemStack createHeadItem(String texture, String name, List<String> lore) {
+        ItemStack item = PhoneMenu.createMenuItem(Material.PLAYER_HEAD, name,lore);
+
+        PlayerProfile profile;
+        if (!playerProfiles.containsKey(texture)) {
+            profile = Bukkit.getServer().createPlayerProfile(UUID.randomUUID());
+            try {
+                profile.getTextures().setSkin(new URL("http://textures.minecraft.net/texture/" + texture));
+            } catch (Exception e) {e.printStackTrace();}
+            playerProfiles.put(texture,profile);
+        }
+        profile = playerProfiles.get(texture);
+        if (profile == null) return item;
+        SkullMeta meta = ((SkullMeta)item.getItemMeta());
+        meta.setOwnerProfile(profile);
+        item.setItemMeta(meta);
+        return item;
+    }
+
 }

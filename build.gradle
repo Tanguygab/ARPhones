@@ -34,10 +34,10 @@ dependencies {
     compileOnly 'org.spigotmc:spigot-api:1.19.3-R0.1-SNAPSHOT'
     compileOnly 'com.discordsrv:discordsrv:1.26.0'
     implementation 'net.wesjd:anvilgui:1.6.3-SNAPSHOT'
-    compileOnly files('../../dependencies/KeyCard-1.0.jar')
+    compileOnly files('../../dependencies/KeyCard-1.0.jar','../../dependencies/nms/nms-1.19.3.jar')
 }
 
 shadowJar {
     archiveClassifier.set('')
-    relocate 'net.wesjd', 'io.github.tanguygab.net.wesjd'
+    relocate 'net.wesjd', 'io.github.tanguygab.relocate.wesjd'
 }

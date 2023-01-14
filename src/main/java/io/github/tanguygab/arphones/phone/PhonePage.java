@@ -8,7 +8,8 @@ public enum PhonePage {
     CONTACT_INFO,
     LOCK_SCREEN_INFO,
     PIN_EDIT,
-    KEYCARDS;
+    KEYCARDS,
+    VIDEOGAME;
 
     public static PhonePage pageFromStr(String str) {
         for (PhonePage page : values()) {

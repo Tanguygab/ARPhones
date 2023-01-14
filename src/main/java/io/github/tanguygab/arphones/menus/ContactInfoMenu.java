@@ -23,7 +23,7 @@ public class ContactInfoMenu extends PhoneMenu {
     private final Contact contact;
 
     public ContactInfoMenu(Player p, Phone phone, Contact contact) {
-        super(p, phone, Utils.msgs().getContactInfoTitle(contact.getName()), 54);
+        super(p, phone, Utils.msgs().getContactInfoTitle(contact.getName()), 6);
         this.contact = contact;
         chatInputReopen = true;
     }
@@ -140,7 +140,7 @@ public class ContactInfoMenu extends PhoneMenu {
 
     @Override
     public void onClose() {
-        phone.setContactPage(null);
+        phone.setPageArgument(null);
         super.onClose();
     }
 }

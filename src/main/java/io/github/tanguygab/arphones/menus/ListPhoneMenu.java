@@ -24,7 +24,7 @@ public class ListPhoneMenu extends PhoneMenu {
     private final SIMCard sim;
 
     public ListPhoneMenu(Player p, Phone phone, boolean isContacts) {
-        super(p, phone, Utils.msgs().getListTitle(isContacts),54);
+        super(p, phone, Utils.msgs().getListTitle(isContacts),6);
         sim = phone.getSim();
         this.isContacts = isContacts;
     }

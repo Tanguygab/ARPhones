@@ -13,7 +13,7 @@ import java.util.List;
 public class KeyCardMenu extends PhoneMenu {
 
     public KeyCardMenu(Player p, Phone phone) {
-        super(p, phone, "Keycards",27);
+        super(p, phone, "Keycards",3);
     }
 
     @Override

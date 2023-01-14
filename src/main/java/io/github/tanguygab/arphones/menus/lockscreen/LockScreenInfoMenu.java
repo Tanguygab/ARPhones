@@ -25,7 +25,7 @@ public class LockScreenInfoMenu extends PhoneMenu {
 
     private final LockSystem system;
     public LockScreenInfoMenu(Player p, Phone phone) {
-        super(p, phone, "Lock Screen Info Menu",27);
+        super(p, phone, "Lock Screen Info Menu",3);
         system = phone.getLockSystem();
     }
 

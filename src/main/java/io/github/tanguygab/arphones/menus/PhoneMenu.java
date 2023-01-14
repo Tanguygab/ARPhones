@@ -26,15 +26,15 @@ public abstract class PhoneMenu {
     public boolean chatInputReopen = false;
     protected LanguageFile lang = Utils.msgs();
 
-    public PhoneMenu(Player p, Phone phone, String title, int slots) {
+    public PhoneMenu(Player p, Phone phone, String title, int rows) {
         this.p = p;
         this.phone = phone;
-        this.inv = Bukkit.getServer().createInventory(null,slots,title);
+        this.inv = Bukkit.getServer().createInventory(null,rows*9,title);
     }
-    public PhoneMenu(Player p, Phone phone, String title, InventoryType invtype) {
+    public PhoneMenu(Player p, Phone phone, String title, InventoryType invType) {
         this.p = p;
         this.phone = phone;
-        this.inv = Bukkit.getServer().createInventory(null,invtype,title);
+        this.inv = Bukkit.getServer().createInventory(null,invType,title);
     }
 
     public abstract void onOpen();
@@ -68,8 +68,12 @@ public abstract class PhoneMenu {
                 inv.setItem(i,filler);
         }
     }
+
     public void fillSlots(int... slots) {
-        ItemStack filler = getFiller();
+        fillSlots(getFiller(),slots);
+    }
+
+    public void fillSlots(ItemStack filler, int... slots) {
         for (Integer slot : slots) inv.setItem(slot,filler);
     }
 

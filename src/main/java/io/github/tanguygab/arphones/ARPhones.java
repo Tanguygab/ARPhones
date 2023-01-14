@@ -137,8 +137,8 @@ public final class ARPhones extends JavaPlugin implements CommandExecutor {
 
                 Phone phone = new Phone(uuid,lockSystem,sims.get(sim),battery,owner,backgroundColor,PhonePage.pageFromStr(page),keycards);
                 ARPhones.get().phones.put(el,phone);
-                if (map.containsKey("page-contact"))
-                    phone.setContactPage(map.get("page-contact")+"");
+                if (map.containsKey("page-argument"))
+                    phone.setPageArgument(map.get("page-argument")+"");
             }
 
         } catch (Exception e) {

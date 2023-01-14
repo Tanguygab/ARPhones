@@ -1,23 +1,13 @@
 package io.github.tanguygab.arphones.menus.lockscreen;
 
-import io.github.tanguygab.arphones.ARPhones;
 import io.github.tanguygab.arphones.menus.PhoneMenu;
 import io.github.tanguygab.arphones.phone.Phone;
 import io.github.tanguygab.arphones.phone.PhonePage;
 import io.github.tanguygab.arphones.utils.Utils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.profile.PlayerProfile;
-
-import java.net.URL;
-import java.util.UUID;
 
 public class PinEditMenu extends PhoneMenu {
 
@@ -41,7 +31,6 @@ public class PinEditMenu extends PhoneMenu {
     public boolean onClick(ItemStack item, int slot, ClickType click) {
         switch (slot) {
             case 0,1,3,4 -> {
-                ItemMeta meta = item.getItemMeta();
                 int i = slot > 2 ? slot-1 : slot;
                 char[] chars = pin.toCharArray();
                 int newPin = Integer.parseInt(chars[i]+"");
@@ -51,11 +40,9 @@ public class PinEditMenu extends PhoneMenu {
                 if (newPin > 9) newPin = 0;
                 if (newPin < 0) newPin = 9;
 
-                meta.setDisplayName(ChatColor.WHITE+""+newPin);
-                item.setItemMeta(meta);
-
                 chars[i] = (newPin+"").charAt(0);
                 pin = ""+chars[0]+chars[1]+chars[2]+chars[3];
+                createPinItem(i,slot);
             }
         }
         return true;
@@ -69,19 +56,10 @@ public class PinEditMenu extends PhoneMenu {
         runSync(()->phone.open(p, PhonePage.MAIN));
     }
 
-    private void createPinItem(int charNumber, int slot) {
+    protected void createPinItem(int charNumber, int slot) {
         char pinChar = pin.charAt(charNumber);
-        ItemStack item = createMenuItem(Material.PLAYER_HEAD, pinChar+"",lang.getPinLore());
+        ItemStack item = Utils.createHeadItem(getTexture(pinChar), pinChar+"",lang.getPinLore());
         inv.setItem(slot,item);
-
-        SkullMeta meta = (SkullMeta) item.getItemMeta();
-        PlayerProfile profile = Bukkit.getServer().createPlayerProfile(UUID.randomUUID());
-        try {
-            profile.getTextures().setSkin(new URL("http://textures.minecraft.net/texture/" + getTexture(pinChar)));
-            meta.setOwnerProfile(profile);
-        } catch (Exception e) {e.printStackTrace();}
-
-        item.setItemMeta(meta);
     }
 
     private static String getTexture(char num) {

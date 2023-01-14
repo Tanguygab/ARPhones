@@ -1,6 +1,7 @@
 package io.github.tanguygab.arphones.phone;
 
 import io.github.tanguygab.arphones.ARPhones;
+import io.github.tanguygab.arphones.menus.games.HangmanMenu;
 import io.github.tanguygab.arphones.menus.lockscreen.LockScreenInfoMenu;
 import io.github.tanguygab.arphones.menus.lockscreen.PinEditMenu;
 import io.github.tanguygab.arphones.menus.lockscreen.PinMenu;
@@ -32,7 +33,7 @@ public class Phone {
     private String backgroundColor;
     private int battery;
     private PhonePage page;
-    private String contactPage = null;
+    private String pageArgument = null;
 
     private final List<ItemStack> keycards;
 
@@ -105,9 +106,9 @@ public class Phone {
         this.page = page;
         set("page",page.toString());
     }
-    public void setContactPage(String contact) {
-        contactPage = contact;
-        set("contact-page",contact);
+    public void setPageArgument(String pageArgument) {
+        this.pageArgument = pageArgument;
+        set("page-argument",pageArgument);
     }
 
     public LockSystem getLockSystem() {
@@ -142,12 +143,12 @@ public class Phone {
 
 
     public void openLastMenu(Player p) {
-        open(p,page,contactPage == null ? null : getSim().getContact(UUID.fromString(contactPage)));
+        open(p,page, pageArgument == null ? null : getSim().getContact(UUID.fromString(pageArgument)));
     }
     public void open(Player p, PhonePage page) {
         open(p,page,null);
     }
-    public void open(Player p, PhonePage page, Contact contact) {
+    public void open(Player p, PhonePage page, Object arg) {
         if (lockSystem.isLocked() && lockSystem.hasFaceRecognition() && isOwner(p)) {
             lockSystem.setLocked(false);
             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.GREEN+"Face Recognized"));
@@ -162,7 +163,7 @@ public class Phone {
                         .onComplete(completion -> List.of(completion.getText().equals(lockSystem.getKey())
                                 ? AnvilGUI.ResponseAction.run(() -> {
                                     lockSystem.setLocked(false);
-                                    open(p, page, contact);
+                                    open(p, page, arg);
                                 })
                                 : AnvilGUI.ResponseAction.replaceInputText("Try again")))
                         .open(p);
@@ -185,11 +186,11 @@ public class Phone {
                 yield new ListPhoneMenu(p,this,page == PhonePage.CONTACTS);
             }
             case CONTACT_INFO -> {
-                if (contact == null) {
+                if (!(arg instanceof Contact contact)) {
                     open(p,PhonePage.MAIN);
                     yield null;
                 }
-                setContactPage(contact.getUUID().toString());
+                setPageArgument(contact.getUUID().toString());
                 yield new ContactInfoMenu(p,this,contact);
             }
             case LOCK_SCREEN_INFO -> isOwner(p) ? new LockScreenInfoMenu(p,this) : new MainPhoneMenu(p,this);
@@ -200,6 +201,13 @@ public class Phone {
                     yield null;
                 }
                 yield new KeyCardMenu(p,this);
+            }
+            case VIDEOGAME -> {
+                if (!(arg instanceof PhoneGame)) {
+                    open(p,PhonePage.MAIN);
+                    yield null;
+                }
+                yield new HangmanMenu(p,this);
             }
         };
         if (menu == null) return;

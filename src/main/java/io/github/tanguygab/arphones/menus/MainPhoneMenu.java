@@ -1,5 +1,6 @@
 package io.github.tanguygab.arphones.menus;
 
+import io.github.tanguygab.arphones.phone.PhoneGame;
 import io.github.tanguygab.arphones.phone.PhonePage;
 import io.github.tanguygab.arphones.phone.sim.SIMCard;
 import io.github.tanguygab.arphones.phone.Phone;
@@ -16,15 +17,16 @@ import java.util.Arrays;
 public class MainPhoneMenu extends PhoneMenu {
 
     public MainPhoneMenu(Player p, Phone phone) {
-        super(p, phone, Utils.msgs().getMenuTitle(), 27);
+        super(p, phone, Utils.msgs().getMenuTitle(), 3);
     }
 
     @Override
     public void onOpen() {
 
-        inv.setItem(11, createMenuItem(Material.CREEPER_HEAD,lang.getContactsName(),lang.getContactsLore()));
+        inv.setItem(10, createMenuItem(Material.CREEPER_HEAD,lang.getContactsName(),lang.getContactsLore()));
         boolean isOwner = phone.isOwner(p);
-        inv.setItem(15,createMenuItem(Material.IRON_DOOR,isOwner ? lang.getLockName() : "Lock your Phone",isOwner ? lang.getLockLore() : null));
+        inv.setItem(14,createMenuItem(Material.IRON_DOOR,isOwner ? lang.getLockName() : "Lock your Phone",isOwner ? lang.getLockLore() : null));
+        inv.setItem(16,Utils.createHeadItem("0ebe7e5215169a699acc6cefa7b73fdb108db87bb6dae2849fbe24714b27","Videogames",Arrays.asList("","Play various videogames","from Hangman to Snake!")));
 
         inv.setItem(7,createMenuItem(Material.REDSTONE,lang.getBatteryName(),lang.getBatteryLore(phone.getBattery())));
 
@@ -48,7 +50,7 @@ public class MainPhoneMenu extends PhoneMenu {
     }
 
     private void loadBackground() {
-        inv.setItem(13,createMenuItem(phone.getBackgroundColorBlock(),lang.getBackgroundColorName(),lang.getBackgroundColorLore(phone.getBackgroundColor())));
+        inv.setItem(12,createMenuItem(phone.getBackgroundColorBlock(),lang.getBackgroundColorName(),lang.getBackgroundColorLore(phone.getBackgroundColor())));
         fillMenu();
     }
 
@@ -74,12 +76,12 @@ public class MainPhoneMenu extends PhoneMenu {
                     loadSIMItem();
                 }
             }
-            case 11 -> phone.open(p,PhonePage.CONTACTS);
-            case 13 -> {
+            case 10 -> phone.open(p,PhonePage.CONTACTS);
+            case 12 -> {
                 phone.setBackgroundColor(click == ClickType.MIDDLE ? "gray" : MenuUtils.nextColor(phone.getBackgroundColor(),click.isLeftClick() ? 1 : -1));
                 loadBackground();
             }
-            case 15 -> {
+            case 14 -> {
                 if (!phone.isOwner(p)) {
                     phone.getLockSystem().setLocked(true);
                     onClose();
@@ -87,6 +89,7 @@ public class MainPhoneMenu extends PhoneMenu {
                 }
                 phone.open(p,PhonePage.LOCK_SCREEN_INFO);
             }
+            case 16 -> phone.open(p,PhonePage.VIDEOGAME,PhoneGame.HANGMAN);
             case 22 -> {
                 if (!Bukkit.getServer().getPluginManager().isPluginEnabled("KeyCard")) break;
                 phone.open(p,PhonePage.KEYCARDS);
